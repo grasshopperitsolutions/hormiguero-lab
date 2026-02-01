@@ -160,6 +160,176 @@ const SOURCES = [
 
 let allConvocatorias = [];
 
+// Enhanced error logging system
+const errorLogger = {
+  logs: [],
+  addLog: function(source, level, message, details = null) {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      source: source,
+      level: level, // 'success', 'warning', 'error', 'info'
+      message: message,
+      details: details,
+      category: this.getSourceCategory(source)
+    };
+    
+    this.logs.push(logEntry);
+    this.displayLog(logEntry);
+    
+    // Also log to console for debugging
+    if (level === 'error') {
+      console.error(`[ERROR] ${source}: ${message}`, details);
+    } else if (level === 'warning') {
+      console.warn(`[WARNING] ${source}: ${message}`, details);
+    } else if (level === 'success') {
+      console.log(`[SUCCESS] ${source}: ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${source}: ${message}`, details);
+    }
+  },
+  
+  getSourceCategory: function(sourceName) {
+    const source = SOURCES.find(s => s.name === sourceName);
+    return source ? source.category : 'Unknown';
+  },
+  
+  displayLog: function(logEntry) {
+    const log = document.getElementById("progressLog");
+    if (!log) return;
+    
+    const logItem = document.createElement("div");
+    logItem.className = `log-item ${logEntry.level}`;
+    logItem.innerHTML = `
+      <div class="flex items-center gap-2 text-xs">
+        <span class="timestamp">${new Date(logEntry.timestamp).toLocaleTimeString()}</span>
+        <span class="source font-bold">${logEntry.source}</span>
+        <span class="category text-stone-500">${logEntry.category}</span>
+        <span class="level-badge ${logEntry.level}">${logEntry.level.toUpperCase()}</span>
+      </div>
+      <div class="message text-sm">${logEntry.message}</div>
+      ${logEntry.details ? `<div class="details text-xs text-stone-500 mt-1">Details: ${JSON.stringify(logEntry.details)}</div>` : ''}
+    `;
+    
+    log.appendChild(logItem);
+    log.scrollTop = log.scrollHeight;
+  },
+  
+  getSummary: function() {
+    const summary = {
+      total: this.logs.length,
+      success: this.logs.filter(l => l.level === 'success').length,
+      errors: this.logs.filter(l => l.level === 'error').length,
+      warnings: this.logs.filter(l => l.level === 'warning').length,
+      info: this.logs.filter(l => l.level === 'info').length
+    };
+    
+    return summary;
+  },
+
+  getDetailedSummary: function() {
+    const summary = this.getSummary();
+    const byCategory = {};
+    const bySource = {};
+    const errorTypes = {};
+
+    this.logs.forEach(log => {
+      // Group by category
+      if (!byCategory[log.category]) byCategory[log.category] = { total: 0, success: 0, errors: 0, warnings: 0, info: 0 };
+      byCategory[log.category].total++;
+      byCategory[log.category][log.level]++;
+
+      // Group by source
+      if (!bySource[log.source]) bySource[log.source] = { total: 0, success: 0, errors: 0, warnings: 0, info: 0 };
+      bySource[log.source].total++;
+      bySource[log.source][log.level]++;
+
+      // Group by error type if it's an error
+      if (log.level === 'error' && log.details && log.details.errorType) {
+        if (!errorTypes[log.details.errorType]) errorTypes[log.details.errorType] = 0;
+        errorTypes[log.details.errorType]++;
+      }
+    });
+
+    return {
+      ...summary,
+      byCategory: byCategory,
+      bySource: bySource,
+      errorTypes: errorTypes
+    };
+  },
+
+  displaySummary: function() {
+    const summary = this.getDetailedSummary();
+    const log = document.getElementById("progressLog");
+    if (!log) return;
+
+    const summaryDiv = document.createElement("div");
+    summaryDiv.className = "log-summary border-t border-stone-200 mt-4 pt-4";
+    summaryDiv.innerHTML = `
+      <div class="summary-header flex items-center justify-between mb-2">
+        <h4 class="text-sm font-bold text-stone-600">Resumen del Proceso</h4>
+        <span class="text-xs text-stone-400">${new Date().toLocaleTimeString()}</span>
+      </div>
+      <div class="summary-stats grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+        <div class="stat-item bg-green-50 border border-green-200 p-2 rounded">
+          <div class="text-xs text-green-600 font-bold">Exitosas</div>
+          <div class="text-lg font-bold text-green-700">${summary.success}</div>
+        </div>
+        <div class="stat-item bg-red-50 border border-red-200 p-2 rounded">
+          <div class="text-xs text-red-600 font-bold">Errores</div>
+          <div class="text-lg font-bold text-red-700">${summary.errors}</div>
+        </div>
+        <div class="stat-item bg-yellow-50 border border-yellow-200 p-2 rounded">
+          <div class="text-xs text-yellow-600 font-bold">Advertencias</div>
+          <div class="text-lg font-bold text-yellow-700">${summary.warnings}</div>
+        </div>
+        <div class="stat-item bg-blue-50 border border-blue-200 p-2 rounded">
+          <div class="text-xs text-blue-600 font-bold">Información</div>
+          <div class="text-lg font-bold text-blue-700">${summary.info}</div>
+        </div>
+        <div class="stat-item bg-stone-50 border border-stone-200 p-2 rounded">
+          <div class="text-xs text-stone-600 font-bold">Total</div>
+          <div class="text-lg font-bold text-stone-700">${summary.total}</div>
+        </div>
+      </div>
+      ${Object.keys(summary.errorTypes).length > 0 ? `
+        <div class="error-types mb-3">
+          <div class="text-xs text-stone-500 font-bold mb-1">Tipos de Error:</div>
+          <div class="flex flex-wrap gap-1">
+            ${Object.entries(summary.errorTypes).map(([type, count]) => `
+              <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">${type}: ${count}</span>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+      <div class="source-breakdown">
+        <div class="text-xs text-stone-500 font-bold mb-2">Desglose por Fuente:</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          ${Object.entries(summary.bySource).map(([source, stats]) => `
+            <div class="source-stat bg-stone-50 border border-stone-200 p-2 rounded text-xs">
+              <div class="font-bold text-stone-700">${source}</div>
+              <div class="flex gap-2 text-stone-500">
+                <span>✓ ${stats.success}</span>
+                <span>✗ ${stats.errors}</span>
+                <span>⚠ ${stats.warnings}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    log.appendChild(summaryDiv);
+    log.scrollTop = log.scrollHeight;
+  },
+  
+  clear: function() {
+    this.logs = [];
+    const log = document.getElementById("progressLog");
+    if (log) log.innerHTML = "";
+  }
+};
+
 // Función para inicializar las listas de fuentes de forma segura
 function initializeSources() {
   const list = document.getElementById("sourceList");
@@ -257,27 +427,68 @@ async function startHarvest() {
   resultsGrid.innerHTML = "";
   emptyState.classList.add("hidden");
   allConvocatorias = [];
-  log.innerHTML = "";
+  
+  // Clear previous logs and add initial log entry
+  errorLogger.clear();
+  errorLogger.addLog("Sistema", "info", "Iniciando proceso de cosecha de convocatorias", {
+    totalSources: SOURCES.length,
+    categories: [...new Set(SOURCES.map(s => s.category))]
+  });
 
   try {
-    const requests = SOURCES.map((source) => fetchFromPerplexity(source));
-    // get only first TEST source for demo purposes
-    const results = await Promise.resolve(requests[0]);
-    // const results = await Promise.allSettled(requests);
+    // Process all sources with proper error handling
+    const results = [];
+    let successCount = 0;
+    let errorCount = 0;
 
-    results.forEach((result, index) => {
-      const sourceName = SOURCES[index].name;
-      if (result.status === "fulfilled" && result.value) {
-        allConvocatorias = [...allConvocatorias, ...result.value];
-        log.innerHTML += `<div class="text-stone-600">✓ ${sourceName}</div>`;
-      } else {
-        log.innerHTML += `<div class="text-red-300">✗ ${sourceName}</div>`;
+    for (let i = 0; i < SOURCES.length; i++) {
+      const source = SOURCES[i];
+      errorLogger.addLog(source.name, "info", "Procesando fuente", { url: source.url, category: source.category });
+      
+      try {
+        const result = await fetchFromPerplexity(source);
+        
+        if (result && result.length > 0) {
+          results.push(...result);
+          successCount++;
+          errorLogger.addLog(source.name, "success", `Fuente procesada exitosamente`, {
+            convocatoriasEncontradas: result.length
+          });
+        } else {
+          errorCount++;
+          errorLogger.addLog(source.name, "warning", "Fuente procesada pero sin resultados", {
+            convocatoriasEncontradas: 0
+          });
+        }
+      } catch (sourceError) {
+        errorCount++;
+        errorLogger.addLog(source.name, "error", "Error al procesar fuente", {
+          errorType: sourceError.constructor.name,
+          errorMessage: sourceError.message,
+          stack: sourceError.stack
+        });
       }
+    }
+
+    allConvocatorias = results;
+    renderResults(allConvocatorias);
+
+    // Add final summary
+    const summary = errorLogger.getSummary();
+    errorLogger.addLog("Sistema", "info", `Proceso completado: ${successCount} exitosas, ${errorCount} con errores`, {
+      totalConvocatorias: allConvocatorias.length,
+      resumenErrores: summary
     });
 
-    renderResults(allConvocatorias);
+    // Display detailed summary
+    errorLogger.displaySummary();
+
   } catch (error) {
-    console.error("Harvesting failed:", error);
+    errorLogger.addLog("Sistema", "error", "Error crítico en el proceso de cosecha", {
+      errorType: error.constructor.name,
+      errorMessage: error.message,
+      stack: error.stack
+    });
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;
@@ -301,29 +512,86 @@ async function fetchFromPerplexity(source) {
   };
 
   try {
+    errorLogger.addLog(source.name, "info", "Realizando solicitud a API", {
+      endpoint: "https://perplexity-api-proxy.vercel.app/api/chat",
+      promptLength: prompt.length
+    });
+
     const response = await fetch(
       "https://perplexity-api-proxy.vercel.app/api/chat",
       options,
     );
-    // const response = await fetch(
-    // "https://api.perplexity.ai/chat/completions",
-    // options,
-    // );
+
+    // Check if response is ok
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
     const data = await response.json();
+    
+    // Validate response structure
+    if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error("Respuesta de API con formato inesperado");
+    }
+
     const content = data.choices[0].message.content;
+    errorLogger.addLog(source.name, "info", "Respuesta recibida", {
+      responseSize: content.length,
+      hasChoices: !!data.choices,
+      choiceCount: data.choices.length
+    });
+
+    // Extract JSON from response
     const jsonStr = content.match(/\{[\s\S]*\}/);
-    if (!jsonStr) return null;
-    const json = JSON.parse(jsonStr[0]);
-    return (json.convocatorias || []).map((c) => ({
-      titulo: c.t,
-      descripcion: c.d,
-      fecha_cierre: c.f,
-      estado: c.s,
-      url: c.u,
+    if (!jsonStr) {
+      throw new Error("No se encontró JSON en la respuesta");
+    }
+
+    let json;
+    try {
+      json = JSON.parse(jsonStr[0]);
+    } catch (parseError) {
+      throw new Error(`Error al parsear JSON: ${parseError.message}`);
+    }
+
+    // Validate convocatorias array
+    if (!json.convocatorias || !Array.isArray(json.convocatorias)) {
+      throw new Error("Formato de convocatorias inválido en JSON");
+    }
+
+    const convocatorias = json.convocatorias.map((c) => ({
+      titulo: c.t || "Sin título",
+      descripcion: c.d || "Sin descripción",
+      fecha_cierre: c.f || "Sin fecha",
+      estado: c.s || "desconocido",
+      url: c.u || "#",
       fuente: source.name,
     }));
-  } catch (e) {
-    return null;
+
+    errorLogger.addLog(source.name, "success", "Procesamiento completado", {
+      convocatoriasEncontradas: convocatorias.length,
+      camposValidados: ["titulo", "descripcion", "fecha_cierre", "estado", "url"]
+    });
+
+    return convocatorias;
+
+  } catch (error) {
+    // Categorize the error type
+    let errorType = "unknown";
+    if (error.message.includes("HTTP")) errorType = "network";
+    else if (error.message.includes("JSON")) errorType = "parsing";
+    else if (error.message.includes("formato")) errorType = "validation";
+    else if (error.message.includes("No se encontró")) errorType = "extraction";
+
+    errorLogger.addLog(source.name, "error", `Error en fetchFromPerplexity: ${error.message}`, {
+      errorType: errorType,
+      errorName: error.constructor.name,
+      stack: error.stack,
+      sourceUrl: source.url
+    });
+
+    // Return empty array instead of null for consistency
+    return [];
   }
 }
 

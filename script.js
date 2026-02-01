@@ -160,7 +160,7 @@ const SOURCES = [
 
 let allConvocatorias = [];
 
-// Enhanced error logging system
+// Enhanced error logging system (console-only)
 const errorLogger = {
   logs: [],
   addLog: function(source, level, message, details = null) {
@@ -174,9 +174,8 @@ const errorLogger = {
     };
     
     this.logs.push(logEntry);
-    this.displayLog(logEntry);
     
-    // Also log to console for debugging
+    // Log to console only (no UI display)
     if (level === 'error') {
       console.error(`[ERROR] ${source}: ${message}`, details);
     } else if (level === 'warning') {
@@ -193,140 +192,8 @@ const errorLogger = {
     return source ? source.category : 'Unknown';
   },
   
-  displayLog: function(logEntry) {
-    const log = document.getElementById("progressLog");
-    if (!log) return;
-    
-    const logItem = document.createElement("div");
-    logItem.className = `log-item ${logEntry.level}`;
-    logItem.innerHTML = `
-      <div class="flex items-center gap-2 text-xs">
-        <span class="timestamp">${new Date(logEntry.timestamp).toLocaleTimeString()}</span>
-        <span class="source font-bold">${logEntry.source}</span>
-        <span class="category text-stone-500">${logEntry.category}</span>
-        <span class="level-badge ${logEntry.level}">${logEntry.level.toUpperCase()}</span>
-      </div>
-      <div class="message text-sm">${logEntry.message}</div>
-      ${logEntry.details ? `<div class="details text-xs text-stone-500 mt-1">Details: ${JSON.stringify(logEntry.details)}</div>` : ''}
-    `;
-    
-    log.appendChild(logItem);
-    log.scrollTop = log.scrollHeight;
-  },
-  
-  getSummary: function() {
-    const summary = {
-      total: this.logs.length,
-      success: this.logs.filter(l => l.level === 'success').length,
-      errors: this.logs.filter(l => l.level === 'error').length,
-      warnings: this.logs.filter(l => l.level === 'warning').length,
-      info: this.logs.filter(l => l.level === 'info').length
-    };
-    
-    return summary;
-  },
-
-  getDetailedSummary: function() {
-    const summary = this.getSummary();
-    const byCategory = {};
-    const bySource = {};
-    const errorTypes = {};
-
-    this.logs.forEach(log => {
-      // Group by category
-      if (!byCategory[log.category]) byCategory[log.category] = { total: 0, success: 0, errors: 0, warnings: 0, info: 0 };
-      byCategory[log.category].total++;
-      byCategory[log.category][log.level]++;
-
-      // Group by source
-      if (!bySource[log.source]) bySource[log.source] = { total: 0, success: 0, errors: 0, warnings: 0, info: 0 };
-      bySource[log.source].total++;
-      bySource[log.source][log.level]++;
-
-      // Group by error type if it's an error
-      if (log.level === 'error' && log.details && log.details.errorType) {
-        if (!errorTypes[log.details.errorType]) errorTypes[log.details.errorType] = 0;
-        errorTypes[log.details.errorType]++;
-      }
-    });
-
-    return {
-      ...summary,
-      byCategory: byCategory,
-      bySource: bySource,
-      errorTypes: errorTypes
-    };
-  },
-
-  displaySummary: function() {
-    const summary = this.getDetailedSummary();
-    const log = document.getElementById("progressLog");
-    if (!log) return;
-
-    const summaryDiv = document.createElement("div");
-    summaryDiv.className = "log-summary border-t border-stone-200 mt-4 pt-4";
-    summaryDiv.innerHTML = `
-      <div class="summary-header flex items-center justify-between mb-2">
-        <h4 class="text-sm font-bold text-stone-600">Resumen del Proceso</h4>
-        <span class="text-xs text-stone-400">${new Date().toLocaleTimeString()}</span>
-      </div>
-      <div class="summary-stats grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
-        <div class="stat-item bg-green-50 border border-green-200 p-2 rounded">
-          <div class="text-xs text-green-600 font-bold">Exitosas</div>
-          <div class="text-lg font-bold text-green-700">${summary.success}</div>
-        </div>
-        <div class="stat-item bg-red-50 border border-red-200 p-2 rounded">
-          <div class="text-xs text-red-600 font-bold">Errores</div>
-          <div class="text-lg font-bold text-red-700">${summary.errors}</div>
-        </div>
-        <div class="stat-item bg-yellow-50 border border-yellow-200 p-2 rounded">
-          <div class="text-xs text-yellow-600 font-bold">Advertencias</div>
-          <div class="text-lg font-bold text-yellow-700">${summary.warnings}</div>
-        </div>
-        <div class="stat-item bg-blue-50 border border-blue-200 p-2 rounded">
-          <div class="text-xs text-blue-600 font-bold">Información</div>
-          <div class="text-lg font-bold text-blue-700">${summary.info}</div>
-        </div>
-        <div class="stat-item bg-stone-50 border border-stone-200 p-2 rounded">
-          <div class="text-xs text-stone-600 font-bold">Total</div>
-          <div class="text-lg font-bold text-stone-700">${summary.total}</div>
-        </div>
-      </div>
-      ${Object.keys(summary.errorTypes).length > 0 ? `
-        <div class="error-types mb-3">
-          <div class="text-xs text-stone-500 font-bold mb-1">Tipos de Error:</div>
-          <div class="flex flex-wrap gap-1">
-            ${Object.entries(summary.errorTypes).map(([type, count]) => `
-              <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">${type}: ${count}</span>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-      <div class="source-breakdown">
-        <div class="text-xs text-stone-500 font-bold mb-2">Desglose por Fuente:</div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          ${Object.entries(summary.bySource).map(([source, stats]) => `
-            <div class="source-stat bg-stone-50 border border-stone-200 p-2 rounded text-xs">
-              <div class="font-bold text-stone-700">${source}</div>
-              <div class="flex gap-2 text-stone-500">
-                <span>✓ ${stats.success}</span>
-                <span>✗ ${stats.errors}</span>
-                <span>⚠ ${stats.warnings}</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    log.appendChild(summaryDiv);
-    log.scrollTop = log.scrollHeight;
-  },
-  
   clear: function() {
     this.logs = [];
-    const log = document.getElementById("progressLog");
-    if (log) log.innerHTML = "";
   }
 };
 
@@ -436,41 +303,40 @@ async function startHarvest() {
   });
 
   try {
-    // Process all sources with proper error handling
-    const results = [];
+    // Process all sources in parallel with proper error handling
+    const requests = SOURCES.map((source) => fetchFromPerplexity(source));
+    const results = await Promise.allSettled(requests[1]);
+    // const results = await Promise.allSettled(requests);
+    
     let successCount = 0;
     let errorCount = 0;
 
-    for (let i = 0; i < SOURCES.length; i++) {
+    // Process results from all sources
+    for (let i = 0; i < results.length; i++) {
       const source = SOURCES[i];
-      errorLogger.addLog(source.name, "info", "Procesando fuente", { url: source.url, category: source.category });
+      const result = results[i];
       
-      try {
-        const result = await fetchFromPerplexity(source);
-        
-        if (result && result.length > 0) {
-          results.push(...result);
-          successCount++;
-          errorLogger.addLog(source.name, "success", `Fuente procesada exitosamente`, {
-            convocatoriasEncontradas: result.length
-          });
-        } else {
-          errorCount++;
-          errorLogger.addLog(source.name, "warning", "Fuente procesada pero sin resultados", {
-            convocatoriasEncontradas: 0
-          });
-        }
-      } catch (sourceError) {
+      if (result.status === "fulfilled" && result.value && result.value.length > 0) {
+        allConvocatorias.push(...result.value);
+        successCount++;
+        errorLogger.addLog(source.name, "success", `Fuente procesada exitosamente`, {
+          convocatoriasEncontradas: result.value.length
+        });
+      } else if (result.status === "fulfilled" && (!result.value || result.value.length === 0)) {
+        errorCount++;
+        errorLogger.addLog(source.name, "warning", "Fuente procesada pero sin resultados", {
+          convocatoriasEncontradas: 0
+        });
+      } else {
         errorCount++;
         errorLogger.addLog(source.name, "error", "Error al procesar fuente", {
-          errorType: sourceError.constructor.name,
-          errorMessage: sourceError.message,
-          stack: sourceError.stack
+          errorType: result.reason?.constructor?.name || "unknown",
+          errorMessage: result.reason?.message || "Unknown error",
+          stack: result.reason?.stack
         });
       }
     }
 
-    allConvocatorias = results;
     renderResults(allConvocatorias);
 
     // Add final summary
@@ -479,9 +345,6 @@ async function startHarvest() {
       totalConvocatorias: allConvocatorias.length,
       resumenErrores: summary
     });
-
-    // Display detailed summary
-    errorLogger.displaySummary();
 
   } catch (error) {
     errorLogger.addLog("Sistema", "error", "Error crítico en el proceso de cosecha", {
@@ -492,7 +355,35 @@ async function startHarvest() {
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;
-    if (allConvocatorias.length === 0) emptyState.classList.remove("hidden");
+    
+    // Update empty state message based on results
+    if (allConvocatorias.length === 0) {
+      const emptyMessage = document.getElementById("emptyMessage");
+      if (emptyMessage) {
+        // Check if there were errors
+        const hasErrors = errorLogger.logs.some(log => log.level === 'error');
+        if (hasErrors) {
+          emptyMessage.innerHTML = `
+            <div class="text-center space-y-4">
+              <div class="text-6xl">⚠️</div>
+              <h3 class="text-xl font-bold text-stone-900">Error en la búsqueda</h3>
+              <p class="text-stone-500">No se pudieron obtener convocatorias debido a errores en el proceso de recolección de datos.</p>
+              <p class="text-sm text-stone-400">Revise la consola para más detalles sobre los errores específicos.</p>
+            </div>
+          `;
+        } else {
+          emptyMessage.innerHTML = `
+            <div class="text-center space-y-4">
+              <div class="text-6xl">📭</div>
+              <h3 class="text-xl font-bold text-stone-900">No hay convocatorias disponibles</h3>
+              <p class="text-stone-500">Las fuentes consultadas no tienen convocatorias vigentes en este momento.</p>
+              <p class="text-sm text-stone-400">Intente nuevamente más tarde o consulte directamente las páginas de las fuentes.</p>
+            </div>
+          `;
+        }
+      }
+      emptyState.classList.remove("hidden");
+    }
   }
 }
 

@@ -381,12 +381,17 @@ async function fetchAllFromPerplexityBatch(sources) {
       .map((s) => `- ${s.name} (${s.category}): ${s.url}`)
       .join("\n");
 
-    const prompt = `Analiza las siguientes ${sources.length} fuentes oficiales colombianas y extrae TODAS las convocatorias, becas, o oportunidades vigentes para febrero de 2026.
+    const prompt = `
+Analiza las siguientes fuentes oficiales y extrae TODAS las convocatorias, becas, o oportunidades.
 
 FUENTES A CONSULTAR:
 ${urlList}
 
-Para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
+Con cada convocatória incluye el enlace unico de cada convocatoria siempre que possible.
+Verifica se existe agregación o grupos o paginacion y navega por las differentes paginas o grupos para alcanzar todas las convocatórias posibles.
+Es importante navegar por la paginacion para obtener todas las convocatorias.
+
+Asi que tengas todas las convocatorias posibles, para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
 {
   "titulo": "nombre completo de la convocatoria",
   "entidad": "nombre de la entidad (debe coincidir con uno de: ${sources.map((s) => s.name).join(", ")})",

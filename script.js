@@ -388,56 +388,105 @@ async function startHarvest() {
 
 async function fetchAllFromPerplexityBatch(sources) {
   try {
-    // Combine all URLs into a single comprehensive prompt
-    const urlList = sources
-      .map((s) => `- ${s.name} (${s.category}): ${s.url}`)
-      .join("\n");
+    const optionsForFirecrawl = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        urls: sources.map((s) => s.url),
+        params: {
+          limit: 200, // Max pages per site (covers all pagination)
+          scrapeOptions: {
+            formats: ["markdown", "html"], // Markdown best for LLM parsing
+            onlyMainContent: true, // Removes nav/footers
+          },
+          pageOptions: {
+            onlyMainContent: true,
+            // includeTags: ["article", 'div[class*="convocatoria"]', "table"], // Target convocatorias content
+            // excludeTags: ["footer", "header", "nav", "script"],
+          },
+        },
+      }),
+    };
 
+    const responseFromFirecrawl = await fetch(
+      "hormiguero-lab-api-proxy.vercel.app/api/get-url-content",
+      optionsForFirecrawl,
+    );
+
+    if (!responseFromFirecrawl.ok) {
+      throw new Error(
+        `API Error: ${responseFromFirecrawl.status} ${responseFromFirecrawl.statusText}`,
+      );
+    } else {
+      console.log(
+        `✅ Scraped ${responseFromFirecrawl.data.length} pages from ${SOURCES.length} sites`,
+      );
+      console.log(`📊 Credits used: ${responseFromFirecrawl.usage.credits}`);
+    }
+
+    const dataFromFirecrawl = await responseFromFirecrawl.json();
+
+    // Feed markdown to Perplexity for JSON extraction
+    const markdownContent = dataFromFirecrawl.data
+      .map((page) => page.markdown)
+      .join("\n\n---\n\n");
+
+    // Prepare new prompt with crawled content
     const prompt = `
-Analiza las siguientes fuentes oficiales y extrae TODAS las convocatorias, becas, o oportunidades.
+Analiza exhaustivamente el siguiente contenido markdown extraído de múltiples fuentes oficiales y extrae TODAS las convocatorias, becas, o oportunidades disponibles.
 
-FUENTES A CONSULTAR:
-${urlList}
+CONTENIDO A ANALIZAR:
+${markdownContent}
 
-Con cada convocatória incluye el enlace unico de cada convocatoria siempre que possible.
-
-Asi que tengas todas las convocatorias posibles, para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
+Para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
 {
   "titulo": "nombre completo de la convocatoria",
-  "entidad": "nombre de la entidad",
+  "entidad": "nombre de la entidad que ofrece la convocatoria",
   "descripcion": "descripción detallada de qué es y qué ofrece",
-  "fechaCierre": "fecha de cierre o null si no está disponible",
-  "enlace": "URL directa de la convocatoria",
-  "monto": "monto económico si aplica o null",
-  "requisitos": "requisitos principales resumidos"
+  "fechaCierre": "fecha de cierre en formato YYYY-MM-DD o 'cerrada' o null si no está disponible",
+  "enlace": "URL directa de la convocatoria si está disponible, sino null",
+  "monto": "monto económico, número de vacantes, cupos o beneficios si aplica, sino null",
+  "requisitos": "requisitos principales resumidos o null",
+  "estado": "abierta/cerrada/finalizada/vigente"
 }
 
-VALIDACIÓN FINAL:
-- Devuelve ÚNICAMENTE un array JSON válido
-- Sin explicaciones, comentarios ni citaciones
-- Si una fuente no es accesible, continúa con las demás`;
+INSTRUCCIONES CRÍTICAS:
+- Extrae TODAS las convocatorias sin excepciones
+- Incluye el enlace único de cada convocatoria siempre que sea posible
+- Si hay múltiples convocatorias de la misma entidad, crea objetos separados para cada una
+- Incluye convocatorias cerradas pero con información completa disponible
+- Extrae cualquier información de fechas, montos o requisitos del markdown
 
-    const options = {
+VALIDACIÓN FINAL:
+- Devuelve ÚNICAMENTE un array JSON válido y bien formado
+- Sin explicaciones, comentarios, citaciones ni texto adicional
+- El array debe empezar con [ y terminar con ]
+- Cada objeto debe estar separado por coma
+- Si el markdown no contiene convocatorias, devuelve un array vacío: []
+`;
+
+    const optionsForPerplexity = {
       method: "POST",
-      headers: {
-        // Authorization: `Bearer [key]`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "sonar-pro",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
       }),
     };
-    const response = await fetch(
-      "https://perplexity-api-proxy.vercel.app/api/chat",
-      options,
+
+    const responseFromPerplexity = await fetch(
+      "hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
+      optionsForPerplexity,
     );
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    if (!responseFromPerplexity.ok) {
+      throw new Error(
+        `API Error: ${responseFromPerplexity.status} ${responseFromPerplexity.statusText}`,
+      );
     }
 
-    const data = await response.json();
+    // continue
+    const data = await responseFromPerplexity.json();
     const content = data.choices[0].message.content;
 
     // Extract JSON array from response

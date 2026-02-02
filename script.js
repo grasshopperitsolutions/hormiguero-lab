@@ -98,6 +98,18 @@ const SOURCES = [
     name: "MinIgualdad",
     category: "Vivienda y Social",
   },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+    name: "MinIgualdad",
+    category: "Vivienda y Social",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+    name: "MinIgualdad",
+    category: "Vivienda y Social",
+  },
 
   // // Gobiernos Locales
   // {
@@ -388,21 +400,22 @@ FUENTES A CONSULTAR:
 ${urlList}
 
 Con cada convocatória incluye el enlace unico de cada convocatoria siempre que possible.
-Verifica se existe agregación o grupos o paginacion y navega por las differentes paginas o grupos para alcanzar todas las convocatórias posibles.
-Es importante navegar por la paginacion para obtener todas las convocatorias.
 
 Asi que tengas todas las convocatorias posibles, para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
 {
   "titulo": "nombre completo de la convocatoria",
-  "entidad": "nombre de la entidad (debe coincidir con uno de: ${sources.map((s) => s.name).join(", ")})",
+  "entidad": "nombre de la entidad",
   "descripcion": "descripción detallada de qué es y qué ofrece",
-  "fechaCierre": "fecha de cierre en formato YYYY-MM-DD o null si no está disponible",
+  "fechaCierre": "fecha de cierre o null si no está disponible",
   "enlace": "URL directa de la convocatoria",
   "monto": "monto económico si aplica o null",
   "requisitos": "requisitos principales resumidos"
 }
 
-Devuelve ÚNICAMENTE un array JSON válido con todas las convocatorias encontradas. No incluyas explicaciones adicionales ni citaciones.`;
+VALIDACIÓN FINAL:
+- Devuelve ÚNICAMENTE un array JSON válido
+- Sin explicaciones, comentarios ni citaciones
+- Si una fuente no es accesible, continúa con las demás`;
 
     const options = {
       method: "POST",

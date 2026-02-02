@@ -163,38 +163,38 @@ let allConvocatorias = [];
 // Enhanced error logging system (console-only)
 const errorLogger = {
   logs: [],
-  addLog: function(source, level, message, details = null) {
+  addLog: function (source, level, message, details = null) {
     const logEntry = {
       timestamp: new Date().toISOString(),
       source: source,
       level: level, // 'success', 'warning', 'error', 'info'
       message: message,
       details: details,
-      category: this.getSourceCategory(source)
+      category: this.getSourceCategory(source),
     };
-    
+
     this.logs.push(logEntry);
-    
+
     // Log to console only (no UI display)
-    if (level === 'error') {
+    if (level === "error") {
       console.error(`[ERROR] ${source}: ${message}`, details);
-    } else if (level === 'warning') {
+    } else if (level === "warning") {
       console.warn(`[WARNING] ${source}: ${message}`, details);
-    } else if (level === 'success') {
+    } else if (level === "success") {
       console.log(`[SUCCESS] ${source}: ${message}`);
     } else {
       console.log(`[${level.toUpperCase()}] ${source}: ${message}`, details);
     }
   },
-  
-  getSourceCategory: function(sourceName) {
-    const source = SOURCES.find(s => s.name === sourceName);
-    return source ? source.category : 'Unknown';
+
+  getSourceCategory: function (sourceName) {
+    const source = SOURCES.find((s) => s.name === sourceName);
+    return source ? source.category : "Unknown";
   },
-  
-  clear: function() {
+
+  clear: function () {
     this.logs = [];
-  }
+  },
 };
 
 // Función para inicializar las listas de fuentes de forma segura
@@ -294,20 +294,25 @@ async function startHarvest() {
   resultsGrid.innerHTML = "";
   emptyState.classList.add("hidden");
   allConvocatorias = [];
-  
+
   // Clear previous logs and add initial log entry
   errorLogger.clear();
-  errorLogger.addLog("Sistema", "info", "Iniciando proceso de cosecha de convocatorias", {
-    totalSources: SOURCES.length,
-    categories: [...new Set(SOURCES.map(s => s.category))]
-  });
+  errorLogger.addLog(
+    "Sistema",
+    "info",
+    "Iniciando proceso de cosecha de convocatorias",
+    {
+      totalSources: SOURCES.length,
+      categories: [...new Set(SOURCES.map((s) => s.category))],
+    },
+  );
 
   try {
     // Process all sources in parallel with proper error handling
     const requests = SOURCES.map((source) => fetchFromPerplexity(source));
-    const results = await Promise.allSettled(requests[1]);
+    const results = await Promise.resolve(requests[1]);
     // const results = await Promise.allSettled(requests);
-    
+
     let successCount = 0;
     let errorCount = 0;
 
@@ -315,24 +320,41 @@ async function startHarvest() {
     for (let i = 0; i < results.length; i++) {
       const source = SOURCES[i];
       const result = results[i];
-      
-      if (result.status === "fulfilled" && result.value && result.value.length > 0) {
+
+      if (
+        result.status === "fulfilled" &&
+        result.value &&
+        result.value.length > 0
+      ) {
         allConvocatorias.push(...result.value);
         successCount++;
-        errorLogger.addLog(source.name, "success", `Fuente procesada exitosamente`, {
-          convocatoriasEncontradas: result.value.length
-        });
-      } else if (result.status === "fulfilled" && (!result.value || result.value.length === 0)) {
+        errorLogger.addLog(
+          source.name,
+          "success",
+          `Fuente procesada exitosamente`,
+          {
+            convocatoriasEncontradas: result.value.length,
+          },
+        );
+      } else if (
+        result.status === "fulfilled" &&
+        (!result.value || result.value.length === 0)
+      ) {
         errorCount++;
-        errorLogger.addLog(source.name, "warning", "Fuente procesada pero sin resultados", {
-          convocatoriasEncontradas: 0
-        });
+        errorLogger.addLog(
+          source.name,
+          "warning",
+          "Fuente procesada pero sin resultados",
+          {
+            convocatoriasEncontradas: 0,
+          },
+        );
       } else {
         errorCount++;
         errorLogger.addLog(source.name, "error", "Error al procesar fuente", {
           errorType: result.reason?.constructor?.name || "unknown",
           errorMessage: result.reason?.message || "Unknown error",
-          stack: result.reason?.stack
+          stack: result.reason?.stack,
         });
       }
     }
@@ -341,27 +363,36 @@ async function startHarvest() {
 
     // Add final summary
     const summary = errorLogger.getSummary();
-    errorLogger.addLog("Sistema", "info", `Proceso completado: ${successCount} exitosas, ${errorCount} con errores`, {
-      totalConvocatorias: allConvocatorias.length,
-      resumenErrores: summary
-    });
-
+    errorLogger.addLog(
+      "Sistema",
+      "info",
+      `Proceso completado: ${successCount} exitosas, ${errorCount} con errores`,
+      {
+        totalConvocatorias: allConvocatorias.length,
+        resumenErrores: summary,
+      },
+    );
   } catch (error) {
-    errorLogger.addLog("Sistema", "error", "Error crítico en el proceso de cosecha", {
-      errorType: error.constructor.name,
-      errorMessage: error.message,
-      stack: error.stack
-    });
+    errorLogger.addLog(
+      "Sistema",
+      "error",
+      "Error crítico en el proceso de cosecha",
+      {
+        errorType: error.constructor.name,
+        errorMessage: error.message,
+        stack: error.stack,
+      },
+    );
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;
-    
+
     // Update empty state message based on results
     if (allConvocatorias.length === 0) {
       const emptyMessage = document.getElementById("emptyMessage");
       if (emptyMessage) {
         // Check if there were errors
-        const hasErrors = errorLogger.logs.some(log => log.level === 'error');
+        const hasErrors = errorLogger.logs.some((log) => log.level === "error");
         if (hasErrors) {
           emptyMessage.innerHTML = `
             <div class="text-center space-y-4">
@@ -405,7 +436,7 @@ async function fetchFromPerplexity(source) {
   try {
     errorLogger.addLog(source.name, "info", "Realizando solicitud a API", {
       endpoint: "https://perplexity-api-proxy.vercel.app/api/chat",
-      promptLength: prompt.length
+      promptLength: prompt.length,
     });
 
     const response = await fetch(
@@ -419,9 +450,14 @@ async function fetchFromPerplexity(source) {
     }
 
     const data = await response.json();
-    
+
     // Validate response structure
-    if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+    if (
+      !data ||
+      !data.choices ||
+      !data.choices[0] ||
+      !data.choices[0].message
+    ) {
       throw new Error("Respuesta de API con formato inesperado");
     }
 
@@ -429,7 +465,7 @@ async function fetchFromPerplexity(source) {
     errorLogger.addLog(source.name, "info", "Respuesta recibida", {
       responseSize: content.length,
       hasChoices: !!data.choices,
-      choiceCount: data.choices.length
+      choiceCount: data.choices.length,
     });
 
     // Extract JSON from response
@@ -461,11 +497,16 @@ async function fetchFromPerplexity(source) {
 
     errorLogger.addLog(source.name, "success", "Procesamiento completado", {
       convocatoriasEncontradas: convocatorias.length,
-      camposValidados: ["titulo", "descripcion", "fecha_cierre", "estado", "url"]
+      camposValidados: [
+        "titulo",
+        "descripcion",
+        "fecha_cierre",
+        "estado",
+        "url",
+      ],
     });
 
     return convocatorias;
-
   } catch (error) {
     // Categorize the error type
     let errorType = "unknown";
@@ -474,12 +515,17 @@ async function fetchFromPerplexity(source) {
     else if (error.message.includes("formato")) errorType = "validation";
     else if (error.message.includes("No se encontró")) errorType = "extraction";
 
-    errorLogger.addLog(source.name, "error", `Error en fetchFromPerplexity: ${error.message}`, {
-      errorType: errorType,
-      errorName: error.constructor.name,
-      stack: error.stack,
-      sourceUrl: source.url
-    });
+    errorLogger.addLog(
+      source.name,
+      "error",
+      `Error en fetchFromPerplexity: ${error.message}`,
+      {
+        errorType: errorType,
+        errorName: error.constructor.name,
+        stack: error.stack,
+        sourceUrl: source.url,
+      },
+    );
 
     // Return empty array instead of null for consistency
     return [];

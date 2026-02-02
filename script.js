@@ -192,6 +192,29 @@ const errorLogger = {
     return source ? source.category : "Unknown";
   },
 
+  getSummary: function () {
+    const summary = {
+      totalLogs: this.logs.length,
+      byLevel: {},
+      byCategory: {},
+      bySource: {},
+    };
+
+    this.logs.forEach((log) => {
+      // Count by level
+      summary.byLevel[log.level] = (summary.byLevel[log.level] || 0) + 1;
+
+      // Count by category
+      summary.byCategory[log.category] =
+        (summary.byCategory[log.category] || 0) + 1;
+
+      // Count by source
+      summary.bySource[log.source] = (summary.bySource[log.source] || 0) + 1;
+    });
+
+    return summary;
+  },
+
   clear: function () {
     this.logs = [];
   },
@@ -309,8 +332,8 @@ async function startHarvest() {
 
   try {
     // Process all sources in parallel with proper error handling
-    const requests = SOURCES.map((source) => fetchFromPerplexity(source));
-    const results = await Promise.resolve(requests[1]);
+    // const requests = SOURCES.map((source) => fetchFromPerplexity(source));
+    const results = await Promise.resolve(fetchFromPerplexity(SOURCES[0]));
     // const results = await Promise.allSettled(requests);
 
     let successCount = 0;
@@ -424,7 +447,7 @@ async function fetchFromPerplexity(source) {
   const options = {
     method: "POST",
     headers: {
-      // Authorization: `Bearer ${PPLX_KEY}`,
+      // Authorization: `Bearer [key]`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -440,6 +463,7 @@ async function fetchFromPerplexity(source) {
     });
 
     const response = await fetch(
+      // "https://cors-anywhere.herokuapp.com/https://api.perplexity.ai/chat/completions",
       "https://perplexity-api-proxy.vercel.app/api/chat",
       options,
     );

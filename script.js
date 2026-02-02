@@ -417,11 +417,6 @@ async function fetchAllFromPerplexityBatch(sources) {
       throw new Error(
         `API Error: ${responseFromFirecrawl.status} ${responseFromFirecrawl.statusText}`,
       );
-    } else {
-      console.log(
-        `✅ Scraped ${responseFromFirecrawl.data.length} pages from ${SOURCES.length} sites`,
-      );
-      console.log(`📊 Credits used: ${responseFromFirecrawl.usage.credits}`);
     }
 
     const dataFromFirecrawl = await responseFromFirecrawl.json();

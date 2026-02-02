@@ -127,6 +127,49 @@
         }
       }
 
+      /* Estilos para el Carousel Infinito */
+      .logo-track {
+        display: flex;
+        width: calc(250px * 14);
+        animation: scroll 40s linear infinite;
+      }
+
+      .logo-track:hover {
+        animation-play-state: paused;
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(calc(-250px * 7));
+        }
+      }
+
+      .logo-slide {
+        width: 250px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 40px;
+      }
+
+      .logo-slide img {
+        max-width: 100%;
+        max-height: 50px;
+        filter: grayscale(100%);
+        opacity: 0.5;
+        transition: all 0.3s ease;
+      }
+
+      .logo-slide:hover img {
+        filter: grayscale(0%);
+        opacity: 1;
+        transform: scale(1.1);
+      }
+
       .hidden-section {
         display: none;
       }
@@ -183,7 +226,7 @@
     <!-- Section: Nosotros -->
     <section
       id="nosotros"
-      class="hidden-section max-w-6xl mx-auto px-4 py-16 space-y-12"
+      class="hidden-section max-w-6xl mx-auto px-4 py-16 space-y-16"
     >
       <div class="text-center space-y-4 max-w-3xl mx-auto">
         <h2 class="serif text-5xl font-bold">Nuestra Naturaleza</h2>
@@ -192,28 +235,127 @@
           construye el futuro de Santander."
         </p>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+
+      <div class="grid grid-cols-1 items-center">
         <div class="nest-chamber p-10 space-y-6">
-          <h3 class="serif text-3xl font-bold text-earth-clay">Misión</h3>
-          <p class="text-stone-600 leading-relaxed">
+          <h3 class="serif text-3xl font-bold text-earth-clay text-center">
+            Misión
+          </h3>
+          <p
+            class="text-stone-600 leading-relaxed text-center max-w-2xl mx-auto"
+          >
             Articular el ecosistema de innovación y desarrollo regional mediante
             el procesamiento inteligente de oportunidades, permitiendo que
             emprendedores, investigadores y comunidades rurales accedan a
             recursos de manera equitativa.
           </p>
         </div>
-        <div class="nest-chamber p-10 space-y-6">
-          <h3 class="serif text-3xl font-bold text-earth-clay">Visión 2030</h3>
-          <p class="text-stone-600 leading-relaxed">
-            Convertirnos en el nodo de inteligencia más importante del oriente
-            colombiano, reconocido por la transparencia en la gestión de datos y
-            la efectividad en la formulación de proyectos de alto impacto.
-          </p>
+      </div>
+
+      <!-- CAROUSEL DE FUENTES -->
+      <div class="space-y-8">
+        <div class="text-center">
+          <span
+            class="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400"
+            >Fuentes en tiempo real</span
+          >
+        </div>
+        <div
+          class="relative overflow-hidden py-4 before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-20 before:bg-gradient-to-r before:from-[var(--earth-bg)] after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-20 after:bg-gradient-to-l after:from-[var(--earth-bg)]"
+        >
+          <div class="logo-track">
+            <!-- Logos (Duplicados para efecto infinito) -->
+            <div class="logo-slide">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Escudo_de_Colombia.svg/1200px-Escudo_de_Colombia.svg.png"
+                alt="Gobierno"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://minciencias.gov.co/sites/default/files/logo_minciencias.png"
+                alt="MinCiencias"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://www.innpulsacolombia.com/sites/default/files/logo-innpulsa.png"
+                alt="Innpulsa"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_ICETEX.png"
+                alt="Icetex"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://www.sena.edu.co/Style%20Library/img/logoSena.png"
+                alt="SENA"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://fiduagraria.gov.co/images/logo-fiduagraria.png"
+                alt="Fiduagraria"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://santander.gov.co/images/escudo_santander.png"
+                alt="Gobernacion"
+              />
+            </div>
+            <!-- Duplicados -->
+            <div class="logo-slide">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Escudo_de_Colombia.svg/1200px-Escudo_de_Colombia.svg.png"
+                alt="Gobierno"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://minciencias.gov.co/sites/default/files/logo_minciencias.png"
+                alt="MinCiencias"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://www.innpulsacolombia.com/sites/default/files/logo-innpulsa.png"
+                alt="Innpulsa"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Logo_ICETEX.png"
+                alt="Icetex"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://www.sena.edu.co/Style%20Library/img/logoSena.png"
+                alt="SENA"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://fiduagraria.gov.co/images/logo-fiduagraria.png"
+                alt="Fiduagraria"
+              />
+            </div>
+            <div class="logo-slide">
+              <img
+                src="https://santander.gov.co/images/escudo_santander.png"
+                alt="Gobernacion"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Section: Convocatorias (Buscador Principal) -->
+    <!-- Resto de secciones omitidas por brevedad pero mantenidas en la lógica de navegación -->
     <section id="convocatorias" class="max-w-6xl mx-auto px-4 py-12">
       <header
         class="mb-16 flex flex-col md:flex-row justify-between items-end gap-8 border-b border-stone-200 pb-12"
@@ -232,17 +374,6 @@
             Vetas de
             <span class="text-earth-clay italic font-normal">Oportunidad</span>
           </h1>
-          <p class="text-xl text-stone-500 max-w-lg font-light italic">
-            Explora las excavaciones de datos en tiempo real de los principales
-            fondos nacionales e internacionales.
-          </p>
-        </div>
-        <div
-          class="flex gap-4 text-[10px] font-bold text-stone-400 uppercase tracking-widest"
-        >
-          <span>Temp: 24°C</span>
-          <span>•</span>
-          <span>Alt: 959m</span>
         </div>
       </header>
 
@@ -545,7 +676,6 @@
       </div>
     </footer>
 
-    <!-- External JavaScript -->
     <script src="script.js"></script>
   </body>
 </html>

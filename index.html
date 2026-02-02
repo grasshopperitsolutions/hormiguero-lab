@@ -32,6 +32,7 @@
       h1,
       h2,
       h3,
+      h4,
       .serif {
         font-family: "Crimson Pro", serif;
       }
@@ -154,7 +155,6 @@
         justify-content: center;
         padding: 0 40px;
       }
-
       .logo-slide img {
         max-width: 100%;
         max-height: 50px;
@@ -162,7 +162,6 @@
         opacity: 0.5;
         transition: all 0.3s ease;
       }
-
       .logo-slide:hover img {
         filter: grayscale(0%);
         opacity: 1;
@@ -173,7 +172,6 @@
         display: none;
       }
 
-      /* Estilos para inputs de filtro */
       .filter-input {
         background: var(--nest-chamber);
         border: 1px solid var(--border-soft);
@@ -183,14 +181,38 @@
         outline: none;
         transition: all 0.3s;
       }
-
       .filter-input:focus {
         border-color: var(--earth-clay);
         box-shadow: 0 0 0 3px rgba(140, 94, 69, 0.1);
       }
+
+      /* Modal Styles */
+      #serviceModal {
+        background-color: rgba(45, 36, 30, 0.6);
+        backdrop-filter: blur(8px);
+      }
+
+      .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .step-number {
+        width: 32px;
+        height: 32px;
+        background: var(--earth-clay);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 0.8rem;
+      }
     </style>
   </head>
   <body class="pt-24">
+    <!-- Navegación -->
     <nav
       class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-stone-200"
     >
@@ -237,7 +259,7 @@
       </div>
     </nav>
 
-    <!-- Section: Nosotros -->
+    <!-- Sección: Nosotros -->
     <section
       id="nosotros"
       class="hidden-section max-w-6xl mx-auto px-4 py-16 space-y-16"
@@ -249,19 +271,12 @@
           construye el futuro de Santander."
         </p>
       </div>
-
-      <div class="grid grid-cols-1 items-center">
-        <div class="nest-chamber p-10 space-y-6">
-          <h3 class="serif text-3xl font-bold text-earth-clay text-center">
-            Misión
-          </h3>
-          <p
-            class="text-stone-600 leading-relaxed text-center max-w-2xl mx-auto"
-          >
-            Articular el ecosistema de innovación y desarrollo regional mediante
-            el procesamiento inteligente de oportunidades.
-          </p>
-        </div>
+      <div class="nest-chamber p-10 space-y-6 text-center">
+        <h3 class="serif text-3xl font-bold text-earth-clay">Misión</h3>
+        <p class="text-stone-600 leading-relaxed max-w-2xl mx-auto">
+          Articular el ecosistema de innovación y desarrollo regional mediante
+          el procesamiento inteligente de oportunidades.
+        </p>
       </div>
 
       <div class="space-y-8">
@@ -354,18 +369,12 @@
                 alt="Fiduagraria"
               />
             </div>
-            <div class="logo-slide">
-              <img
-                src="https://santander.gov.co/images/escudo_santander.png"
-                alt="Gobernacion"
-              />
-            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Section: Convocatorias -->
+    <!-- Sección: Convocatorias -->
     <section id="convocatorias" class="max-w-7xl mx-auto px-4 py-12">
       <header class="mb-12 border-b border-stone-200 pb-8">
         <div class="flex flex-col md:flex-row justify-between items-end gap-6">
@@ -389,9 +398,8 @@
         </div>
       </header>
 
-      <!-- BARRA DE FILTROS HORIZONTAL -->
       <div class="mb-12 flex flex-col md:flex-row items-center gap-4">
-        <div class="flex-grow w-full md:w-auto relative">
+        <div class="flex-grow w-full relative">
           <i
             class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"
           ></i>
@@ -399,7 +407,7 @@
             type="text"
             id="searchInput"
             oninput="applyFilters()"
-            placeholder="Buscar por título o fuente..."
+            placeholder="Buscar oportunidad..."
             class="filter-input w-full pl-12"
           />
         </div>
@@ -426,9 +434,8 @@
             </option>
           </select>
         </div>
-        <!-- Contador integrado -->
         <div
-          class="nest-chamber px-6 py-3 flex items-center gap-3 border-earth-clay/20 bg-earth-clay/5"
+          class="nest-chamber px-6 py-3 flex items-center gap-3 bg-earth-clay/5 border-earth-clay/20"
         >
           <span
             class="text-[10px] font-bold uppercase text-stone-500 tracking-widest leading-none"
@@ -441,7 +448,6 @@
           >
         </div>
       </div>
-
       <div class="relative">
         <div
           id="loading"
@@ -449,72 +455,186 @@
         >
           <i class="fas fa-bug loader-ant text-earth-clay text-3xl"></i>
           <h2 class="serif text-2xl italic">Sincronizando con la nube...</h2>
-          
         </div>
 
         <div
           id="emptyState"
           class="flex flex-col items-center justify-center py-40 bg-stone-100/30 border-2 border-stone-200 rounded-[3rem]"
         >
-            <i class="fas fa-mountain-sun text-4xl text-stone-200 mb-6"></i>
-            <p class="text-stone-400 font-bold serif italic text-xl">
-              El horizonte está despejado.
-            </p>
-          </div>
-
-          <div id="resultsGrid" class="grid grid-cols-1 gap-8"></div>
+          <i class="fas fa-mountain-sun text-4xl text-stone-200 mb-6"></i>
+          <p class="text-stone-400 font-bold serif italic text-xl">
+            El horizonte está despejado.
+          </p>
         </div>
+
+        <div id="resultsGrid" class="grid grid-cols-1 gap-8"></div>
       </div>
     </section>
 
-    <!-- Section: Servicios -->
-    <section id="servicios" class="hidden-section max-w-6xl mx-auto px-4 py-16">
+    <!-- Sección: Servicios -->
+    <section id="servicios" class="hidden-section max-w-7xl mx-auto px-4 py-16">
       <div class="text-center mb-16 space-y-4">
-        <h2 class="serif text-5xl font-bold">Nuestras Capacidades</h2>
-        <p class="text-stone-500">
-          Servicios profesionales diseñados para la maduración de ecosistemas
-          rurales y urbanos.
+        <h2 class="serif text-5xl font-bold">Arquitectura de Proyectos</h2>
+        <p class="text-stone-500 max-w-2xl mx-auto italic">
+          Nuestra especialidad es convertir ideas santandereanas en realidades
+          financiables y de alto impacto.
         </p>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="nest-chamber p-8 space-y-4">
+
+      <div class="max-w-2xl mx-auto">
+        <div
+          class="nest-chamber p-10 space-y-8 text-center border-2 border-earth-clay/10"
+        >
           <div
-            class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-earth-clay"
+            class="w-20 h-20 bg-earth-clay/10 rounded-full flex items-center justify-center mx-auto mb-6"
           >
-            <i class="fas fa-file-signature"></i>
+            <i class="fas fa-file-signature text-earth-clay text-3xl"></i>
           </div>
-          <h3 class="serif text-xl font-bold">Formulación de Proyectos</h3>
-          <p class="text-stone-500 text-sm">
-            Acompañamiento técnico en la redacción y estructuración de proyectos
-            bajo metodologías MGA y marcos internacionales.
+          <h3 class="serif text-3xl font-bold">Formulación de Proyectos</h3>
+          <p class="text-stone-600 leading-relaxed">
+            Estructuramos técnicamente sus propuestas bajo metodologías
+            internacionales (MGA, Marco Lógico) adaptadas a la exigencia de las
+            fuentes nacionales.
           </p>
-        </div>
-        <div class="nest-chamber p-8 space-y-4">
-          <div
-            class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-earth-clay"
+          <button
+            onclick="openModal()"
+            class="btn-harvest px-8 py-3 text-sm font-bold uppercase tracking-widest inline-block"
           >
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <h3 class="serif text-xl font-bold">Vigilancia Tecnológica</h3>
-          <p class="text-stone-500 text-sm">
-            Monitoreo constante de tendencias globales y oportunidades
-            financieras adaptadas a su sector productivo.
-          </p>
-        </div>
-        <div class="nest-chamber p-8 space-y-4">
-          <div
-            class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-earth-clay"
-          >
-            <i class="fas fa-users-cog"></i>
-          </div>
-          <h3 class="serif text-xl font-bold">Gestión de Alianzas</h3>
-          <p class="text-stone-500 text-sm">
-            Articulación con actores de la triple hélice: Academia, Gobierno e
-            Industria para proyectos de co-financiación.
-          </p>
+            Ver Metodología Completa
+          </button>
         </div>
       </div>
     </section>
+
+    <!-- Modal de Servicio -->
+    <div
+      id="serviceModal"
+      class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="modal-content nest-chamber w-full max-w-3xl p-8 md:p-12 relative shadow-2xl"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-6 right-6 text-stone-400 hover:text-earth-clay transition-colors"
+        >
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+
+        <div class="space-y-8">
+          <div class="space-y-2">
+            <span
+              class="text-[10px] font-bold uppercase tracking-[0.3em] text-earth-clay"
+              >Especialidad Core</span
+            >
+            <h2 class="serif text-4xl font-bold">
+              Formulación con "Sello Santandereano"
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+              <h4
+                class="font-bold text-stone-900 border-b border-earth-clay/20 pb-2 flex items-center gap-2"
+              >
+                <i class="fas fa-map-marked-alt text-earth-clay"></i> El Enfoque
+              </h4>
+              <p class="text-sm text-stone-600 leading-relaxed italic">
+                No hacemos documentos de escritorio. Caminamos la idea desde la
+                vereda o el laboratorio hasta los términos de referencia de la
+                convocatoria.
+              </p>
+            </div>
+            <div class="space-y-4">
+              <h4
+                class="font-bold text-stone-900 border-b border-earth-clay/20 pb-2 flex items-center gap-2"
+              >
+                <i class="fas fa-check-double text-earth-clay"></i> Resultados
+              </h4>
+              <ul class="text-sm text-stone-600 space-y-2">
+                <li>
+                  <i class="fas fa-caret-right text-earth-clay mr-2"></i>
+                  Viabilidad Técnica 95%+
+                </li>
+                <li>
+                  <i class="fas fa-caret-right text-earth-clay mr-2"></i>
+                  Coherencia Financiera
+                </li>
+                <li>
+                  <i class="fas fa-caret-right text-earth-clay mr-2"></i>
+                  Impacto Territorial
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <h4 class="serif text-2xl font-bold text-center">
+              Nuestra Metodología "Hormiga"
+            </h4>
+            <div class="space-y-4">
+              <!-- Paso 1 -->
+              <div class="flex gap-4 items-start">
+                <div class="step-number mt-1">1</div>
+                <div>
+                  <h5 class="font-bold text-stone-800">Cata de la Idea</h5>
+                  <p class="text-xs text-stone-500">
+                    Analizamos la madurez del proyecto (TRL) y su alineación con
+                    el plan de desarrollo regional.
+                  </p>
+                </div>
+              </div>
+              <!-- Paso 2 -->
+              <div class="flex gap-4 items-start">
+                <div class="step-number mt-1">2</div>
+                <div>
+                  <h5 class="font-bold text-stone-800">
+                    Estructura Marco Lógico
+                  </h5>
+                  <p class="text-xs text-stone-500">
+                    Definimos objetivos, indicadores y riesgos bajo estándares
+                    MGA (Metodología General Ajustada).
+                  </p>
+                </div>
+              </div>
+              <!-- Paso 3 -->
+              <div class="flex gap-4 items-start">
+                <div class="step-number mt-1">3</div>
+                <div>
+                  <h5 class="font-bold text-stone-800">Presupuesto Riguroso</h5>
+                  <p class="text-xs text-stone-500">
+                    Costeo real del mercado santandereano y nacional, asegurando
+                    que cada peso esté justificado.
+                  </p>
+                </div>
+              </div>
+              <!-- Paso 4 -->
+              <div class="flex gap-4 items-start">
+                <div class="step-number mt-1">4</div>
+                <div>
+                  <h5 class="font-bold text-stone-800">
+                    Acompañamiento en Plataforma
+                  </h5>
+                  <p class="text-xs text-stone-500">
+                    No lo soltamos solo; cargamos y validamos cada documento en
+                    los sistemas de la fuente (SGR, SIGP, etc).
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-earth-clay/5 p-6 rounded-2xl border border-earth-clay/10 text-center italic"
+          >
+            <p class="text-sm text-earth-clay">
+              "Pa' que su proyecto no se quede en el papel, trabajamos con la
+              berraquera que nos caracteriza."
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Section: Contacto -->
     <section id="contacto" class="hidden-section max-w-4xl mx-auto px-4 py-16">
@@ -565,57 +685,35 @@
     <!-- Footer -->
     <footer class="bg-stone-900 text-stone-400 mt-32 pt-20 pb-12">
       <div
-        class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-stone-800 pb-20"
+        class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 mb-16 border-b border-stone-800 pb-16"
       >
         <div class="space-y-6">
           <div class="flex items-center gap-3">
-            <i class="fas fa-mountain-sun text-earth-accent text-2xl"></i>
-            <h3 class="serif text-2xl font-bold text-white">Hormiguero Lab</h3>
+            <i class="fas fa-mountain-sun text-earth-clay text-2xl"></i>
+            <h2
+              class="text-xl font-bold tracking-tight text-white leading-none"
+            >
+              Hormiguero
+              <span class="text-earth-clay italic font-normal">Lab</span>
+            </h2>
           </div>
-          <p class="text-xs leading-relaxed">
-            Infraestructura digital diseñada en Santander para el
-            fortalecimiento del tejido productivo a través de la inteligencia de
-            datos y la colaboración profesional.
+          <p class="text-xs leading-relaxed max-w-xs">
+            Inteligencia colectiva para el desarrollo de Santander.
+            Transformamos el ecosistema regional mediante la gestión técnica de
+            oportunidades.
           </p>
-          <div class="flex gap-4">
-            <a
-              href="#"
-              class="text-stone-500 hover:text-white transition-colors"
-              ><i class="fab fa-linkedin"></i
-            ></a>
-            <a
-              href="#"
-              class="text-stone-500 hover:text-white transition-colors"
-              ><i class="fab fa-twitter"></i
-            ></a>
-          </div>
         </div>
 
         <div class="space-y-6">
           <h4
             class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500"
           >
-            Vetas de Datos
-          </h4>
-          <div class="max-h-64 overflow-y-auto pr-2">
-            <ul id="footerSourceList" class="text-xs space-y-3">
-              <!-- Dinámico -->
-            </ul>
-          </div>
-        </div>
-
-        <div class="space-y-6">
-          <h4
-            class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500"
-          >
-            Nuestros Servicios
+            Líneas de Operación
           </h4>
           <ul class="text-xs space-y-3">
-            <li>Formulación de Proyectos MGA</li>
+            <li>Formulación de Proyectos</li>
             <li>Vigilancia Tecnológica</li>
             <li>Articulación de Ecosistemas</li>
-            <li>Búsqueda de Cofinanciación</li>
-            <li>Informes de Inteligencia Regional</li>
           </ul>
         </div>
 
@@ -628,20 +726,22 @@
           <p class="text-xs">
             Cra. 1 #2-3, Hub de Innovación<br />Bucaramanga, Santander
           </p>
-          <p class="text-xs font-bold text-white">
+          <p class="text-xs font-bold text-white underline cursor-pointer">
             soporte@grasshoppersolutions.online
           </p>
         </div>
       </div>
 
       <div
-        class="max-w-7xl mx-auto px-6 pt-12 flex flex-col md:flex-row justify-between items-center gap-6"
+        class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6"
       >
-        <div class="text-center md:text-left">
-          <p class="text-[10px] uppercase font-bold tracking-widest">
-            &copy; 2025 Hormiguero Lab. Todos los derechos reservados.
-          </p>
-        </div>
+        <p class="text-[10px] uppercase font-bold tracking-widest">
+          &copy; 2025 Hormiguero Lab. Santander, Colombia.
+        </p>
+        <div
+          id="footerSourceList"
+          class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[10px] font-bold uppercase tracking-widest"
+        ></div>
         <div
           class="flex items-center gap-4 text-[10px] uppercase font-bold tracking-widest"
         >
@@ -656,7 +756,6 @@
       </div>
     </footer>
 
-    <!-- Script Externo -->
     <script src="script.js"></script>
   </body>
 </html>

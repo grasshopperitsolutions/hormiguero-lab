@@ -584,3 +584,23 @@ function applyFilters() {
   });
   renderResults(filtered);
 }
+
+function openModal() {
+  document.getElementById("serviceModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("serviceModal").classList.add("hidden");
+  document.body.style.overflow = "auto";
+}
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function (event) {
+  const modal = document.getElementById("serviceModal");
+  if (event.target == modal) closeModal();
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (typeof initializeSources === "function") initializeSources();
+});

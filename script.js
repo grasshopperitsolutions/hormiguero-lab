@@ -781,10 +781,10 @@ Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, 
         // FALLBACK: Try regex extraction (rare case)
         console.log("Direct parse failed, attempting regex extraction...");
 
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        const jsonMatch = convocatorias.match(/\[[\s\S]*\]/);
         if (!jsonMatch) {
           console.error("❌ No JSON array found");
-          console.log("Response preview:", content.substring(0, 500));
+          console.log("Response preview:", convocatorias.substring(0, 500));
           return [];
         }
 

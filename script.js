@@ -765,6 +765,7 @@ VALIDACIÓN FINAL:
           model: "sonar",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
+          max_tokens: 12000,
         }),
       },
     );
@@ -777,13 +778,34 @@ VALIDACIÓN FINAL:
     const content = data.choices[0].message.content;
 
     // Extract JSON array
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      console.warn("No JSON array found in Perplexity response");
-      return [];
+    try {
+      // Try direct parse FIRST (most common case)
+      convocatorias = JSON.parse(content);
+      console.log(
+        `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
+      );
+    } catch (directParseError) {
+      // FALLBACK: Try regex extraction (rare case)
+      console.log("Direct parse failed, attempting regex extraction...");
+
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        console.error("❌ No JSON array found");
+        console.log("Response preview:", content.substring(0, 500));
+        return [];
+      }
+
+      convocatorias = JSON.parse(jsonMatch);
+      console.log(
+        `✅ Parsed JSON from regex: ${convocatorias.length} convocatorias`,
+      );
     }
 
-    const convocatorias = JSON.parse(jsonMatch[0]);
+    // Validate result
+    if (!Array.isArray(convocatorias)) {
+      console.error("❌ Not an array:", typeof convocatorias);
+      return [];
+    }
 
     // Map results back to include category
     return convocatorias.map((conv) => {

@@ -1,11 +1,11 @@
 const SOURCES = [
   // Ciencia y Tecnología
-  {
-    id: "minciencias",
-    url: "https://minciencias.gov.co/convocatorias",
-    name: "Minciencias",
-    category: "Ciencia y Tecnología",
-  },
+  // // // // {
+  // // // //   id: "minciencias",
+  // // // //   url: "https://minciencias.gov.co/convocatorias",
+  // // // //   name: "Minciencias",
+  // // // //   category: "Ciencia y Tecnología",
+  // // // // },
   // {
   //   id: "atenea",
   //   url: "https://agenciaatenea.gov.co/convocatorias",
@@ -46,12 +46,12 @@ const SOURCES = [
   // },
 
   // // Cooperación y Emprendimiento
-  {
-    id: "apc",
-    url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
-    name: "APC Colombia",
-    category: "Cooperación y Emprendimiento",
-  },
+  // // // {
+  // // //   id: "apc",
+  // // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
+  // // //   name: "APC Colombia",
+  // // //   category: "Cooperación y Emprendimiento",
+  // // // },
   // {
   //   id: "cidei",
   //   url: "https://cidei.net/convocatorias-para-proyectos-idi/",
@@ -762,7 +762,7 @@ VALIDACIÓN FINAL:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "sonar",
+          model: "sonar-pro",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
           max_tokens: 12000,
@@ -775,7 +775,7 @@ VALIDACIÓN FINAL:
     }
 
     const data = await perplexityResponse.json();
-    const content = data.choices[0].message.content;
+    const content = data.search_results;
 
     // Extract JSON array
     try {

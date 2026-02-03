@@ -724,36 +724,23 @@ async function fetchAllFromPerplexityBatch(sources) {
     console.log("Sending to Perplexity...");
 
     const prompt = `
-Analiza exhaustivamente el siguiente contenido markdown extraído de múltiples fuentes oficiales y extrae TODAS las convocatorias, becas, o oportunidades disponibles.
+Extrae todas las convocatorias del siguiente contenido en formato JSON.
 
-CONTENIDO A ANALIZAR:
 ${markdownContent}
 
-Para cada convocatoria encontrada, proporciona un objeto JSON con esta estructura exacta:
+Devuelve un array JSON con esta estructura para cada convocatoria:
 {
-  "titulo": "nombre completo de la convocatoria",
-  "entidad": "nombre de la entidad que ofrece la convocatoria",
-  "descripcion": "descripción detallada de qué es y qué ofrece",
-  "fechaCierre": "fecha de cierre en formato YYYY-MM-DD o 'cerrada' o null si no está disponible",
-  "enlace": "URL directa de la convocatoria si está disponible, sino null",
-  "monto": "monto económico, número de vacantes, cupos o beneficios si aplica, sino null",
-  "requisitos": "requisitos principales resumidos o null",
-  "estado": "abierta/cerrada/finalizada/vigente"
+  "titulo": "nombre completo",
+  "entidad": "nombre de la entidad",
+  "descripcion": "descripción detallada",
+  "fechaCierre": "YYYY-MM-DD o null",
+  "enlace": "URL o null",
+  "monto": "monto o null",
+  "requisitos": "requisitos o null",
+  "estado": "abierta/cerrada/vigente"
 }
 
-INSTRUCCIONES CRÍTICAS:
-- Extrae TODAS las convocatorias sin excepciones
-- Incluye el enlace único de cada convocatoria siempre que sea posible
-- Si hay múltiples convocatorias de la misma entidad, crea objetos separados para cada una
-- Incluye convocatorias cerradas pero con información completa disponible
-- Extrae cualquier información de fechas, montos o requisitos del markdown
-
-VALIDACIÓN FINAL:
-- Devuelve ÚNICAMENTE un array JSON válido y bien formado
-- Sin explicaciones, comentarios, citaciones ni texto adicional
-- El array debe empezar con [ y terminar con ]
-- Cada objeto debe estar separado por coma
-- Si el markdown no contiene convocatorias, devuelve un array vacío: []
+Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, sin texto adicional.
 `;
 
     const perplexityResponse = await fetch(
@@ -762,10 +749,11 @@ VALIDACIÓN FINAL:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "sonar-pro",
+          model: "sonar",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
-          max_tokens: 20000,
+          max_tokens: 8000,
+          disable_search: true,
         }),
       },
     );
@@ -776,33 +764,36 @@ VALIDACIÓN FINAL:
 
     const data = await perplexityResponse.json();
     console.log("Perplexity response received", data);
-    const content = data.search_results;
+    let convocatorias = data.search_results;
 
-    // Extract JSON array
-    try {
-      // Try direct parse FIRST (most common case)
-      convocatorias = JSON.parse(content);
-      console.log(
-        `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
-      );
-    } catch (directParseError) {
-      // log direct parse error
-      console.warn("Direct JSON parse failed:", directParseError);
+    // if convocatorias is a string, try to parse it else if array continue
+    if (typeof convocatorias === "string") {
+      // Extract JSON array
+      try {
+        // Try direct parse FIRST (most common case)
+        convocatorias = JSON.parse(convocatorias);
+        console.log(
+          `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
+        );
+      } catch (directParseError) {
+        // log direct parse error
+        console.warn("Direct JSON parse failed:", directParseError);
 
-      // FALLBACK: Try regex extraction (rare case)
-      console.log("Direct parse failed, attempting regex extraction...");
+        // FALLBACK: Try regex extraction (rare case)
+        console.log("Direct parse failed, attempting regex extraction...");
 
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        console.error("❌ No JSON array found");
-        console.log("Response preview:", content.substring(0, 500));
-        return [];
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+          console.error("❌ No JSON array found");
+          console.log("Response preview:", content.substring(0, 500));
+          return [];
+        }
+
+        convocatorias = JSON.parse(jsonMatch);
+        console.log(
+          `✅ Parsed JSON from regex: ${convocatorias.length} convocatorias`,
+        );
       }
-
-      convocatorias = JSON.parse(jsonMatch);
-      console.log(
-        `✅ Parsed JSON from regex: ${convocatorias.length} convocatorias`,
-      );
     }
 
     // Validate result

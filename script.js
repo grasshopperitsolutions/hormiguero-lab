@@ -393,18 +393,8 @@ async function fetchAllFromPerplexityBatch(sources) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         urls: sources.map((s) => s.url),
-        params: {
-          limit: 200, // Max pages per site (covers all pagination)
-          scrapeOptions: {
-            formats: ["markdown", "html"], // Markdown best for LLM parsing
-            onlyMainContent: true, // Removes nav/footers
-          },
-          pageOptions: {
-            onlyMainContent: true,
-            // includeTags: ["article", 'div[class*="convocatoria"]', "table"], // Target convocatorias content
-            // excludeTags: ["footer", "header", "nav", "script"],
-          },
-        },
+        formats: ["markdown"],
+        onlyMainContent: true,
       }),
     };
 

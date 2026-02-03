@@ -427,11 +427,13 @@
             class="filter-input flex-grow"
           >
             <option value="todas">Todas las categorías</option>
-            <option value="Ciencia y Tecnología">Ciencia y Tecnología</option>
-            <option value="Educación y Becas">Educación y Becas</option>
-            <option value="Cooperación y Emprendimiento">
-              Cooperación y Emprendimiento
-            </option>
+          </select>
+          <select
+            id="fuenteFilter"
+            onchange="applyFilters()"
+            class="filter-input flex-grow"
+          >
+            <option value="todas">Todas las fuentes</option>
           </select>
         </div>
         <div

@@ -98,18 +98,18 @@ const SOURCES = [
     name: "MinIgualdad",
     category: "Vivienda y Social",
   },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-    name: "MinIgualdad",
-    category: "Vivienda y Social",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-    name: "MinIgualdad",
-    category: "Vivienda y Social",
-  },
+  // {
+  //   id: "minigualdad",
+  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+  //   name: "MinIgualdad",
+  //   category: "Vivienda y Social",
+  // },
+  // {
+  //   id: "minigualdad",
+  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+  //   name: "MinIgualdad",
+  //   category: "Vivienda y Social",
+  // },
 
   // // Gobiernos Locales
   // {
@@ -503,11 +503,55 @@ function initializeSources() {
   }
 }
 
+// Función para inicializar filtros dinámicos
+function initializeFilters() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const fuenteFilter = document.getElementById("fuenteFilter");
+
+  if (!categoryFilter || !fuenteFilter) return;
+
+  // Limpiar filtros
+  categoryFilter.innerHTML =
+    '<option value="todas">Todas las categorías</option>';
+  fuenteFilter.innerHTML = '<option value="todas">Todas las fuentes</option>';
+
+  // Obtener categorías y fuentes únicas de los datos actuales
+  const dataToUse =
+    currentConvocatorias.length > 0 ? currentConvocatorias : mockConvocatorias;
+
+  const uniqueCategories = [
+    ...new Set(
+      dataToUse.map((c) => c.categoria || c.category || "Sin categoría"),
+    ),
+  ].sort();
+  const uniqueFuentes = [
+    ...new Set(dataToUse.map((c) => c.fuente || c.entidad)),
+  ].sort();
+
+  // Agregar categorías al filtro
+  uniqueCategories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+
+  // Agregar fuentes al filtro
+  uniqueFuentes.forEach((fuente) => {
+    const option = document.createElement("option");
+    option.value = fuente;
+    option.textContent = fuente;
+    fuenteFilter.appendChild(option);
+  });
+}
+
 window.onload = () => {
   initializeSources();
   // Set up unified data source with mock data initially
   currentConvocatorias = mockConvocatorias;
   renderResults(currentConvocatorias);
+  // Initialize dynamic filters
+  initializeFilters();
 };
 
 function showSection(id) {
@@ -586,6 +630,8 @@ async function startHarvest() {
     }
 
     renderResults(currentConvocatorias);
+    // Re-initialize filters with new data
+    initializeFilters();
   } catch (error) {
     errorLogger.addLog(
       "Sistema",
@@ -780,12 +826,14 @@ function applyFilters() {
   const queryEl = document.getElementById("searchInput");
   const statusEl = document.getElementById("statusFilter");
   const categoryEl = document.getElementById("categoryFilter");
+  const fuenteEl = document.getElementById("fuenteFilter");
 
-  if (!queryEl || !statusEl || !categoryEl) return;
+  if (!queryEl || !statusEl || !categoryEl || !fuenteEl) return;
 
   const query = queryEl.value.toLowerCase();
   const status = statusEl.value;
   const category = categoryEl.value;
+  const fuente = fuenteEl.value;
 
   // Use currentConvocatorias (unified data source) for filtering
   const dataToFilter =
@@ -796,16 +844,30 @@ function applyFilters() {
     const source = SOURCES.find((s) => s.name === c.fuente);
     const sourceCategory = source ? source.category : "";
 
+    // Enhanced search functionality - search in title, description, source, and category
     const matchesQuery =
+      query === "" ||
       (c.titulo || "").toLowerCase().includes(query) ||
-      (c.fuente || "").toLowerCase().includes(query);
+      (c.descripcion || "").toLowerCase().includes(query) ||
+      (c.fuente || "").toLowerCase().includes(query) ||
+      (c.entidad || "").toLowerCase().includes(query) ||
+      (sourceCategory || "").toLowerCase().includes(query) ||
+      (c.categoria || "").toLowerCase().includes(query);
 
     const matchesStatus =
       status === "todos" || (c.estado || "").toLowerCase() === status;
 
-    const matchesCategory = category === "todas" || sourceCategory === category;
+    const matchesCategory =
+      category === "todas" ||
+      sourceCategory === category ||
+      (c.categoria || "") === category;
 
-    return matchesQuery && matchesStatus && matchesCategory;
+    const matchesFuente =
+      fuente === "todas" ||
+      (c.fuente || "") === fuente ||
+      (c.entidad || "") === fuente;
+
+    return matchesQuery && matchesStatus && matchesCategory && matchesFuente;
   });
   renderResults(filtered);
 }

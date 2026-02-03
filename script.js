@@ -52,12 +52,6 @@ const SOURCES = [
     name: "APC Colombia",
     category: "Cooperación y Emprendimiento",
   },
-  {
-    id: "innpulsa",
-    url: "https://www.innpulsacolombia.com/convocatorias",
-    name: "INNpulsa",
-    category: "Cooperación y Emprendimiento",
-  },
   // {
   //   id: "cidei",
   //   url: "https://cidei.net/convocatorias-para-proyectos-idi/",
@@ -666,7 +660,7 @@ async function fetchAllFromPerplexityBatch(sources) {
     };
 
     const responseFromFirecrawl = await fetch(
-      "https://hormiguero-lab-api-proxy.vercel.app/api/get-url-content",
+      "https://hormiguero-lab-api-proxy.vercel.app/api/get-batch-content",
       optionsForFirecrawl,
     );
 
@@ -678,10 +672,80 @@ async function fetchAllFromPerplexityBatch(sources) {
 
     const dataFromFirecrawl = await responseFromFirecrawl.json();
 
-    // Feed markdown to Perplexity for JSON extraction
-    const markdownContent = dataFromFirecrawl.data
-      .map((page) => page.markdown)
-      .join("\n\n---\n\n");
+    // Check if the response has the expected structure from the new batch endpoint
+    let markdownContent = "";
+
+    if (dataFromFirecrawl.success && dataFromFirecrawl.markdownContent) {
+      // New batch endpoint structure: response.markdownContent contains the combined content
+      markdownContent = dataFromFirecrawl.markdownContent;
+      console.log(
+        `Successfully processed ${dataFromFirecrawl.processedUrls}/${dataFromFirecrawl.totalUrls} URLs`,
+      );
+    } else if (dataFromFirecrawl.success === false) {
+      // Handle failed or timeout responses
+      console.error("Batch processing failed:", dataFromFirecrawl.error);
+      markdownContent = "";
+    } else {
+      // Fallback for unexpected response structure - use old logic for compatibility
+      console.warn(
+        "Unexpected batch API response structure, attempting fallback:",
+        dataFromFirecrawl,
+      );
+
+      if (dataFromFirecrawl.success && dataFromFirecrawl.data) {
+        // Old structure: response.data contains the array
+        markdownContent = dataFromFirecrawl.data
+          .map((page) => page.markdown)
+          .join("\n\n---\n\n");
+      } else if (
+        dataFromFirecrawl.success &&
+        dataFromFirecrawl.id &&
+        dataFromFirecrawl.url
+      ) {
+        // Handle batch response structure - need to poll for results
+        console.warn(
+          "Batch job created, need to poll for results:",
+          dataFromFirecrawl.id,
+        );
+        markdownContent = await pollBatchJob(
+          dataFromFirecrawl.id,
+          dataFromFirecrawl.url,
+        );
+      } else if (dataFromFirecrawl.success && !dataFromFirecrawl.data) {
+        // Handle case where response indicates success but no data array
+        console.warn(
+          "Firecrawl response indicates success but no data array found",
+        );
+        markdownContent = "";
+      } else {
+        // Handle the batch response structure where data might be in a different format
+        console.warn(
+          "Unexpected Firecrawl response structure, attempting to extract markdown",
+        );
+
+        // Try to extract markdown from the response based on the actual structure
+        if (Array.isArray(dataFromFirecrawl)) {
+          // If response is directly an array
+          markdownContent = dataFromFirecrawl
+            .map((item) => item.markdown || "")
+            .join("\n\n---\n\n");
+        } else if (dataFromFirecrawl && typeof dataFromFirecrawl === "object") {
+          // If response is an object, try to find markdown in nested properties
+          const pages = Object.values(dataFromFirecrawl).filter(
+            (item) => typeof item === "object" && item.markdown,
+          );
+          markdownContent = pages
+            .map((page) => page.markdown)
+            .join("\n\n---\n\n");
+        }
+      }
+    }
+
+    // If no markdown content was extracted, use empty string
+    if (!markdownContent) {
+      console.warn("No markdown content extracted from Firecrawl response");
+      markdownContent = "";
+    }
 
     // Prepare new prompt with crawled content
     const prompt = `
@@ -721,7 +785,7 @@ VALIDACIÓN FINAL:
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "sonar-pro",
+        model: "sonar",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
       }),
@@ -887,6 +951,64 @@ window.onclick = function (event) {
   const modal = document.getElementById("serviceModal");
   if (event.target == modal) closeModal();
 };
+
+// Function to poll batch job for results
+async function pollBatchJob(jobId, jobUrl) {
+  // Poll every 2 seconds for up to 30 seconds (15 attempts)
+  const maxAttempts = 15;
+  const delay = 2000; // 2 seconds
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // console.log(`Polling attempt ${attempt}/${maxAttempts} for job ${jobId}`);
+
+      const response = await fetch(jobUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          "Polling failed: " + response.status + " " + response.statusText,
+        );
+      }
+
+      const data = await response.json();
+      // console.log("Polling response:", data);
+
+      // Check if job is completed
+      if (data.status === "completed") {
+        console.log("Batch job completed successfully");
+        // Extract markdown from completed job response
+        if (data.data && Array.isArray(data.data)) {
+          return data.data
+            .map((page) => page.markdown || "")
+            .join("\n\n---\n\n");
+        } else {
+          console.warn("No data found in completed job response");
+          return "";
+        }
+      } else if (data.status === "failed") {
+        console.error("Batch job failed:", data.error || "Unknown error");
+        return "";
+      } else {
+        console.log("Job status: " + data.status + ", waiting...");
+      }
+    } catch (error) {
+      console.error(`Polling attempt ${attempt} failed:`, error.message);
+    }
+
+    // Wait before next attempt (except on last attempt)
+    if (attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  console.error("Max polling attempts reached, job may still be processing");
+  return "";
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeSources === "function") initializeSources();

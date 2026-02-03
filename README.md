@@ -1,4 +1,4 @@
-# <img src="../../assets/logo.svg" alt="Grasshopper IT Solutions" height="32" style="vertical-align: middle;"> Hormiguero Lab
+# Hormiguero Lab
 
 [![Pages Status](https://github.com/grasshopperitsolutions/hormiguero-lab/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/grasshopperitsolutions/hormiguero-lab/actions/workflows/pages/pages-build-deployment)
 

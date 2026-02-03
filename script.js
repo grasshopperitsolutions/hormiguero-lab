@@ -649,99 +649,154 @@ async function startHarvest() {
 
 async function fetchAllFromPerplexityBatch(sources) {
   try {
-    // STEP 1: Start the Firecrawl batch job
-    console.log("Starting Firecrawl batch job...");
+    console.log(`🚀 Starting parallel crawl of ${sources.length} URLs...`);
 
-    const startResponse = await fetch(
-      "https://hormiguero-lab-api-proxy.vercel.app/api/get-batch-content",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "start",
-          urls: sources.map((s) => s.url),
-          formats: ["markdown"],
-          onlyMainContent: true,
-        }),
-      },
-    );
+    const BATCH_SIZE = 5; // Process 5 URLs in parallel
+    const allResults = [];
 
-    if (!startResponse.ok) {
-      throw new Error(`Start job failed: ${startResponse.status}`);
+    // Process sources in batches
+    for (let i = 0; i < sources.length; i += BATCH_SIZE) {
+      const batch = sources.slice(i, i + BATCH_SIZE);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(sources.length / BATCH_SIZE);
+
+      console.log(`\n📦 Processing batch ${batchNumber} of ${totalBatches}...`);
+
+      // Crawl all URLs in this batch in parallel
+      const batchPromises = batch.map(async (source) => {
+        try {
+          console.log(`🕷️ Crawling ${source.name}...`);
+
+          const crawlResponse = await fetch(
+            "https://hormiguero-lab-api-proxy.vercel.app/api/crawl-single-url",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                url: source.url,
+                crawlerOptions: {
+                  maxDepth: 2, // Follow pagination + 1 level deep links
+                  limit: 20, // Max 20 pages per URL
+                  includePaths: ["convocatorias"],
+                  excludePaths: ["login", "admin", "usuario", "register"],
+                  generateMarkdown: true,
+                  onlyMainContent: true, // Get full content (needed for Liferay)
+                  waitFor: 2000, // Wait 2s for JavaScript to load
+                  timeout: 25000,
+                  allowExternalLinks: false,
+                  screenshot: false,
+                },
+              }),
+            },
+          );
+
+          if (!crawlResponse.ok) {
+            throw new Error(`Crawl failed: ${crawlResponse.status}`);
+          }
+
+          const crawlData = await crawlResponse.json();
+
+          // Extract markdown from all pages
+          const pagesScraped = crawlData.data || [];
+          const markdown = pagesScraped
+            .map((page) => `[URL: ${page.url}]\n${page.markdown || ""}`)
+            .join("\n\n---PAGE BREAK---\n\n");
+
+          console.log(
+            `✅ ${source.name}: ${pagesScraped.length} pages scraped`,
+          );
+
+          return {
+            source: source,
+            markdown: markdown,
+            pageCount: pagesScraped.length,
+            success: true,
+          };
+        } catch (error) {
+          console.error(`❌ ${source.name} failed:`, error.message);
+          return {
+            source: source,
+            markdown: "",
+            pageCount: 0,
+            success: false,
+            error: error.message,
+          };
+        }
+      });
+
+      // Wait for all in this batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      allResults.push(...batchResults);
+
+      // Small delay between batches to avoid rate limits
+      if (i + BATCH_SIZE < sources.length) {
+        console.log("⏳ Waiting 2s before next batch...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
     }
 
-    const startData = await startResponse.json();
-    console.log("Job started:", startData.jobId);
+    // Combine all successful results
+    const successfulResults = allResults.filter((r) => r.success && r.markdown);
+    const combinedMarkdown = successfulResults
+      .map((r) => r.markdown)
+      .join("\n\n" + "=".repeat(80) + "\n\n");
 
-    // STEP 2: Poll for completion
-    const jobUrl = startData.jobUrl;
-    let markdownContent = "";
-    let attempts = 0;
-    const maxAttempts = 150; // 5 minutes (150 * 2 seconds)
+    const totalPages = allResults.reduce((sum, r) => sum + r.pageCount, 0);
 
-    while (attempts < maxAttempts) {
-      attempts++;
+    console.log(`\n📊 Crawl Summary:`);
+    console.log(`   Total sources: ${sources.length}`);
+    console.log(`   Successful: ${successfulResults.length}`);
+    console.log(`   Failed: ${allResults.length - successfulResults.length}`);
+    console.log(`   Total pages scraped: ${totalPages}`);
+    console.log(`   Total markdown: ${combinedMarkdown.length} chars`);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
-
-      const checkResponse = await fetch(
-        "https://hormiguero-lab-api-proxy.vercel.app/api/get-batch-content",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "check",
-            jobUrl: jobUrl,
-          }),
-        },
-      );
-
-      if (!checkResponse.ok) {
-        console.error("Check failed:", checkResponse.status);
-        continue;
-      }
-
-      const checkData = await checkResponse.json();
-      console.log(`Attempt ${attempts}: Status = ${checkData.jobStatus}`);
-
-      if (checkData.jobStatus === "completed") {
-        markdownContent = checkData.markdownContent;
-        console.log("✅ Firecrawl completed!");
-        break;
-      }
-
-      if (checkData.jobStatus === "failed") {
-        throw new Error("Firecrawl job failed");
-      }
-    }
-
-    if (!markdownContent) {
-      console.warn("No markdown content after polling");
+    if (!combinedMarkdown || combinedMarkdown.trim().length === 0) {
+      console.warn("⚠️ No markdown content after crawling");
       return [];
     }
 
-    // STEP 3: Send to Perplexity for extraction
-    console.log("Sending to Perplexity...");
+    // STEP 2: Extract with Perplexity (NO WEB SEARCH)
+    console.log("\n📤 Sending to Perplexity for extraction...");
 
-    const prompt = `
-Extrae todas las convocatorias del siguiente contenido en formato JSON.
+    const prompt = `TAREA CRÍTICA: Extraer TODAS las convocatorias del contenido
 
-${markdownContent}
+INSTRUCCIÓN PRINCIPAL: 
+Tu única tarea es extraer cada convocatoria mencionada en el contenido markdown a continuación.
+NO puedes omitir ninguna. NO puedes agrupar. NO puedes simplificar.
+Debes extraer CADA UNA tal como aparece.
 
-Devuelve un array JSON con esta estructura para cada convocatoria:
+CONTENIDO A ANALIZAR:
+${combinedMarkdown}
+
+ESTRUCTURA DE SALIDA:
+Para cada convocatoria encontrada, crea un objeto JSON con EXACTAMENTE esta estructura:
 {
-  "titulo": "nombre completo",
-  "entidad": "nombre de la entidad",
+  "titulo": "nombre completo de la convocatoria",
+  "entidad": "nombre de la entidad oferente",
   "descripcion": "descripción detallada",
-  "fechaCierre": "YYYY-MM-DD o null",
-  "enlace": "URL o null",
-  "monto": "monto o null",
-  "requisitos": "requisitos o null",
-  "estado": "abierta/cerrada/vigente/proxima"
+  "fechaCierre": "fecha en YYYY-MM-DD o null si no disponible",
+  "enlace": "URL directa o null",
+  "monto": "valor económico, vacantes o null",
+  "requisitos": "requisitos principales o null",
+  "estado": "abierta, cerrada, vigente"
 }
 
-Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, sin texto adicional.
-`;
+REGLAS ESTRICTAS:
+1. Extrae TODAS las convocatorias sin excepciones
+2. Cada convocatoria debe ser un objeto JSON separado
+3. No combines convocatorias relacionadas
+4. Incluye toda la información disponible en cada campo
+5. Los campos nulos deben ser null (no "N/A", no "", no "no disponible")
+6. Las fechas deben estar en formato YYYY-MM-DD o null
+7. Los enlaces deben ser URLs completas o null
+
+VALIDACIÓN Y SALIDA:
+- Devuelve ÚNICAMENTE un array JSON válido
+- El array debe empezar con [ y terminar con ]
+- Los objetos deben estar separados por comas
+- NO incluyas explicaciones, comentarios o texto adicional
+
+¡AHORA EXTRAE TODAS LAS CONVOCATORIAS!`;
 
     const perplexityResponse = await fetch(
       "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
@@ -763,46 +818,58 @@ Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, 
     }
 
     const data = await perplexityResponse.json();
-    console.log("Perplexity response received", data);
-    let convocatorias = data.choices[0].message.content;
-    // if convocatorias is a string, try to parse it else if array continue
-    if (typeof convocatorias === "string") {
-      // Extract JSON array
+    const content = data.choices[0].message.content;
+
+    console.log(`📄 Perplexity response length: ${content.length} characters`);
+    console.log(`📊 Usage:`, data.usage);
+
+    // Parse JSON
+    let convocatorias = [];
+
+    try {
+      // Try direct parse FIRST (most common case)
+      convocatorias = JSON.parse(content);
+      console.log(
+        `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
+      );
+    } catch (directParseError) {
+      // FALLBACK: Try regex extraction (rare case)
+      console.log("⚠️ Direct parse failed, attempting regex extraction...");
+
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+
+      if (!jsonMatch) {
+        console.error("❌ No JSON array found in Perplexity response");
+        console.log("Response preview:", content.substring(0, 500));
+        return [];
+      }
+
       try {
-        // Try direct parse FIRST (most common case)
-        convocatorias = JSON.parse(convocatorias);
-        console.log(
-          `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
-        );
-      } catch (directParseError) {
-        // log direct parse error
-        console.warn("Direct JSON parse failed:", directParseError);
-
-        // FALLBACK: Try regex extraction (rare case)
-        console.log("Direct parse failed, attempting regex extraction...");
-
-        const jsonMatch = convocatorias.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) {
-          console.error("❌ No JSON array found");
-          console.log("Response preview:", convocatorias.substring(0, 500));
-          return [];
-        }
-
-        convocatorias = JSON.parse(jsonMatch);
+        convocatorias = JSON.parse(jsonMatch[0]);
         console.log(
           `✅ Parsed JSON from regex: ${convocatorias.length} convocatorias`,
         );
+      } catch (regexParseError) {
+        console.error(
+          "❌ Failed to parse extracted JSON:",
+          regexParseError.message,
+        );
+        return [];
       }
     }
 
     // Validate result
     if (!Array.isArray(convocatorias)) {
-      console.error("❌ Not an array:", typeof convocatorias);
+      console.error("❌ Parsed result is not an array:", typeof convocatorias);
       return [];
     }
 
-    // Map results back to include category
-    return convocatorias.map((conv) => {
+    console.log(
+      `✅ Successfully extracted ${convocatorias.length} convocatorias`,
+    );
+
+    // Enrich with categories
+    const enrichedConvocatorias = convocatorias.map((conv) => {
       const source = sources.find((s) => s.name === conv.entidad);
       return {
         ...conv,
@@ -810,8 +877,12 @@ Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, 
         fuente: conv.entidad,
       };
     });
+
+    console.log("✅ Enriched convocatorias with categories");
+    return enrichedConvocatorias;
   } catch (error) {
-    console.error("Error in batch fetch:", error);
+    console.error("❌ Error in parallel crawl:", error);
+    console.error("Error stack:", error.stack);
     throw error;
   }
 }
@@ -1000,3 +1071,18 @@ async function pollBatchJob(jobId, jobUrl) {
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeSources === "function") initializeSources();
 });
+
+function clearFilters() {
+  const searchInput = document.getElementById("searchInput");
+  const statusFilter = document.getElementById("statusFilter");
+  const categoryFilter = document.getElementById("categoryFilter");
+
+  if (searchInput) searchInput.value = "";
+  if (statusFilter) statusFilter.value = "todos";
+  if (categoryFilter) categoryFilter.value = "todas";
+
+  // Ejecutar la lógica de filtrado de script.js para actualizar la UI
+  if (typeof applyFilters === "function") {
+    applyFilters();
+  }
+}

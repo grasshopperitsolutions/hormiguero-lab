@@ -765,7 +765,7 @@ VALIDACIÓN FINAL:
           model: "sonar-pro",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
-          max_tokens: 12000,
+          max_tokens: 20000,
         }),
       },
     );
@@ -785,6 +785,9 @@ VALIDACIÓN FINAL:
         `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
       );
     } catch (directParseError) {
+      // log direct parse error
+      console.error("Direct JSON parse failed:", directParseError);
+
       // FALLBACK: Try regex extraction (rare case)
       console.log("Direct parse failed, attempting regex extraction...");
 

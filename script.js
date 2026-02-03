@@ -737,7 +737,7 @@ Devuelve un array JSON con esta estructura para cada convocatoria:
   "enlace": "URL o null",
   "monto": "monto o null",
   "requisitos": "requisitos o null",
-  "estado": "abierta/cerrada/vigente"
+  "estado": "abierta/cerrada/vigente/proxima"
 }
 
 Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, sin texto adicional.

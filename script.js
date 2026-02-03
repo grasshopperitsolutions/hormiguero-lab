@@ -775,6 +775,7 @@ VALIDACIÓN FINAL:
     }
 
     const data = await perplexityResponse.json();
+    console.log("Perplexity response received", data);
     const content = data.search_results;
 
     // Extract JSON array
@@ -786,7 +787,7 @@ VALIDACIÓN FINAL:
       );
     } catch (directParseError) {
       // log direct parse error
-      console.error("Direct JSON parse failed:", directParseError);
+      console.warn("Direct JSON parse failed:", directParseError);
 
       // FALLBACK: Try regex extraction (rare case)
       console.log("Direct parse failed, attempting regex extraction...");

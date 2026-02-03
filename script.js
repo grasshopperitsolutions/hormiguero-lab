@@ -649,105 +649,80 @@ async function startHarvest() {
 
 async function fetchAllFromPerplexityBatch(sources) {
   try {
-    const optionsForFirecrawl = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        urls: sources.map((s) => s.url),
-        formats: ["markdown"],
-        onlyMainContent: true,
-      }),
-    };
+    // STEP 1: Start the Firecrawl batch job
+    console.log("Starting Firecrawl batch job...");
 
-    const responseFromFirecrawl = await fetch(
+    const startResponse = await fetch(
       "https://hormiguero-lab-api-proxy.vercel.app/api/get-batch-content",
-      optionsForFirecrawl,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "start",
+          urls: sources.map((s) => s.url),
+          formats: ["markdown"],
+          onlyMainContent: true,
+        }),
+      },
     );
 
-    if (!responseFromFirecrawl.ok) {
-      throw new Error(
-        `API Error: ${responseFromFirecrawl.status} ${responseFromFirecrawl.statusText}`,
-      );
+    if (!startResponse.ok) {
+      throw new Error(`Start job failed: ${startResponse.status}`);
     }
 
-    const dataFromFirecrawl = await responseFromFirecrawl.json();
+    const startData = await startResponse.json();
+    console.log("Job started:", startData.jobId);
 
-    // Check if the response has the expected structure from the new batch endpoint
+    // STEP 2: Poll for completion
+    const jobUrl = startData.jobUrl;
     let markdownContent = "";
+    let attempts = 0;
+    const maxAttempts = 150; // 5 minutes (150 * 2 seconds)
 
-    if (dataFromFirecrawl.success && dataFromFirecrawl.markdownContent) {
-      // New batch endpoint structure: response.markdownContent contains the combined content
-      markdownContent = dataFromFirecrawl.markdownContent;
-      console.log(
-        `Successfully processed ${dataFromFirecrawl.processedUrls}/${dataFromFirecrawl.totalUrls} URLs`,
+    while (attempts < maxAttempts) {
+      attempts++;
+
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+      const checkResponse = await fetch(
+        "https://hormiguero-lab-api-proxy.vercel.app/api/get-batch-content",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "check",
+            jobUrl: jobUrl,
+          }),
+        },
       );
-    } else if (dataFromFirecrawl.success === false) {
-      // Handle failed or timeout responses
-      console.error("Batch processing failed:", dataFromFirecrawl.error);
-      markdownContent = "";
-    } else {
-      // Fallback for unexpected response structure - use old logic for compatibility
-      console.warn(
-        "Unexpected batch API response structure, attempting fallback:",
-        dataFromFirecrawl,
-      );
 
-      if (dataFromFirecrawl.success && dataFromFirecrawl.data) {
-        // Old structure: response.data contains the array
-        markdownContent = dataFromFirecrawl.data
-          .map((page) => page.markdown)
-          .join("\n\n---\n\n");
-      } else if (
-        dataFromFirecrawl.success &&
-        dataFromFirecrawl.id &&
-        dataFromFirecrawl.url
-      ) {
-        // Handle batch response structure - need to poll for results
-        console.warn(
-          "Batch job created, need to poll for results:",
-          dataFromFirecrawl.id,
-        );
-        markdownContent = await pollBatchJob(
-          dataFromFirecrawl.id,
-          dataFromFirecrawl.url,
-        );
-      } else if (dataFromFirecrawl.success && !dataFromFirecrawl.data) {
-        // Handle case where response indicates success but no data array
-        console.warn(
-          "Firecrawl response indicates success but no data array found",
-        );
-        markdownContent = "";
-      } else {
-        // Handle the batch response structure where data might be in a different format
-        console.warn(
-          "Unexpected Firecrawl response structure, attempting to extract markdown",
-        );
+      if (!checkResponse.ok) {
+        console.error("Check failed:", checkResponse.status);
+        continue;
+      }
 
-        // Try to extract markdown from the response based on the actual structure
-        if (Array.isArray(dataFromFirecrawl)) {
-          // If response is directly an array
-          markdownContent = dataFromFirecrawl
-            .map((item) => item.markdown || "")
-            .join("\n\n---\n\n");
-        } else if (dataFromFirecrawl && typeof dataFromFirecrawl === "object") {
-          // If response is an object, try to find markdown in nested properties
-          const pages = Object.values(dataFromFirecrawl).filter(
-            (item) => typeof item === "object" && item.markdown,
-          );
-          markdownContent = pages
-            .map((page) => page.markdown)
-            .join("\n\n---\n\n");
-        }
+      const checkData = await checkResponse.json();
+      console.log(`Attempt ${attempts}: Status = ${checkData.jobStatus}`);
+
+      if (checkData.jobStatus === "completed") {
+        markdownContent = checkData.markdownContent;
+        console.log("✅ Firecrawl completed!");
+        break;
+      }
+
+      if (checkData.jobStatus === "failed") {
+        throw new Error("Firecrawl job failed");
       }
     }
 
-    // If no markdown content was extracted, use empty string
     if (!markdownContent) {
-      console.warn("No markdown content extracted from Firecrawl response");
-      markdownContent = "";
+      console.warn("No markdown content after polling");
+      return [];
     }
 
-    // Prepare new prompt with crawled content
+    // STEP 3: Send to Perplexity for extraction
+    console.log("Sending to Perplexity...");
+
     const prompt = `
 Analiza exhaustivamente el siguiente contenido markdown extraído de múltiples fuentes oficiales y extrae TODAS las convocatorias, becas, o oportunidades disponibles.
 
@@ -781,40 +756,36 @@ VALIDACIÓN FINAL:
 - Si el markdown no contiene convocatorias, devuelve un array vacío: []
 `;
 
-    const optionsForPerplexity = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "sonar",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.2,
-      }),
-    };
-
-    const responseFromPerplexity = await fetch(
+    const perplexityResponse = await fetch(
       "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
-      optionsForPerplexity,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.2,
+        }),
+      },
     );
-    if (!responseFromPerplexity.ok) {
-      throw new Error(
-        `API Error: ${responseFromPerplexity.status} ${responseFromPerplexity.statusText}`,
-      );
+
+    if (!perplexityResponse.ok) {
+      throw new Error(`Perplexity failed: ${perplexityResponse.status}`);
     }
 
-    // continue
-    const data = await responseFromPerplexity.json();
+    const data = await perplexityResponse.json();
     const content = data.choices[0].message.content;
 
-    // Extract JSON array from response
+    // Extract JSON array
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      console.warn("No JSON array found in response");
+      console.warn("No JSON array found in Perplexity response");
       return [];
     }
 
     const convocatorias = JSON.parse(jsonMatch[0]);
 
-    // Map results back to include category from SOURCES
+    // Map results back to include category
     return convocatorias.map((conv) => {
       const source = sources.find((s) => s.name === conv.entidad);
       return {

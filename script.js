@@ -409,7 +409,7 @@ async function fetchAllFromPerplexityBatch(sources) {
     };
 
     const responseFromFirecrawl = await fetch(
-      "hormiguero-lab-api-proxy.vercel.app/api/get-url-content",
+      "https://hormiguero-lab-api-proxy.vercel.app/api/get-url-content",
       optionsForFirecrawl,
     );
 
@@ -471,7 +471,7 @@ VALIDACIÓN FINAL:
     };
 
     const responseFromPerplexity = await fetch(
-      "hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
+      "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
       optionsForPerplexity,
     );
     if (!responseFromPerplexity.ok) {

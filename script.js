@@ -749,10 +749,10 @@ Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "sonar",
+          model: "sonar-pro",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
-          max_tokens: 8000,
+          max_tokens: 20000,
           disable_search: true,
         }),
       },
@@ -764,8 +764,7 @@ Extrae TODAS las convocatorias sin omitir ninguna. Devuelve solo el array JSON, 
 
     const data = await perplexityResponse.json();
     console.log("Perplexity response received", data);
-    let convocatorias = data.search_results;
-
+    let convocatorias = data.choices[0].message.content;
     // if convocatorias is a string, try to parse it else if array continue
     if (typeof convocatorias === "string") {
       // Extract JSON array

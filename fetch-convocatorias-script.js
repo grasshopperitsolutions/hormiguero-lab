@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+// Using native fetch API (no require needed)
 
 // API endpoints
 const CRAWL_API_URL =

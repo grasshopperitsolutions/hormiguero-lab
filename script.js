@@ -1,3 +1,6 @@
+// Import the API fetcher module
+import { fetchConvocatorias } from "./fetch-convocatorias-script.js";
+
 const SOURCES = [
   // Ciencia y Tecnología
   // // // // {
@@ -92,18 +95,18 @@ const SOURCES = [
     name: "MinIgualdad",
     category: "Vivienda y Social",
   },
-  // {
-  //   id: "minigualdad",
-  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-  //   name: "MinIgualdad",
-  //   category: "Vivienda y Social",
-  // },
-  // {
-  //   id: "minigualdad",
-  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-  //   name: "MinIgualdad",
-  //   category: "Vivienda y Social",
-  // },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+    name: "MinIgualdad",
+    category: "Vivienda y Social",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+    name: "MinIgualdad",
+    category: "Vivienda y Social",
+  },
 
   // // Gobiernos Locales
   // {
@@ -381,65 +384,6 @@ const mockConvocatorias = [
     fuente: "Minciencias",
   },
 ];
-// Enhanced error logging system (console-only)
-const errorLogger = {
-  logs: [],
-  addLog: function (source, level, message, details = null) {
-    const logEntry = {
-      timestamp: new Date().toISOString(),
-      source: source,
-      level: level, // 'success', 'warning', 'error', 'info'
-      message: message,
-      details: details,
-      category: this.getSourceCategory(source),
-    };
-
-    this.logs.push(logEntry);
-
-    // Log to console only (no UI display)
-    if (level === "error") {
-      console.error(`[ERROR] ${source}: ${message}`, details);
-    } else if (level === "warning") {
-      console.warn(`[WARNING] ${source}: ${message}`, details);
-    } else if (level === "success") {
-      console.log(`[SUCCESS] ${source}: ${message}`);
-    } else {
-      console.log(`[${level.toUpperCase()}] ${source}: ${message}`, details);
-    }
-  },
-
-  getSourceCategory: function (sourceName) {
-    const source = SOURCES.find((s) => s.name === sourceName);
-    return source ? source.category : "Unknown";
-  },
-
-  getSummary: function () {
-    const summary = {
-      totalLogs: this.logs.length,
-      byLevel: {},
-      byCategory: {},
-      bySource: {},
-    };
-
-    this.logs.forEach((log) => {
-      // Count by level
-      summary.byLevel[log.level] = (summary.byLevel[log.level] || 0) + 1;
-
-      // Count by category
-      summary.byCategory[log.category] =
-        (summary.byCategory[log.category] || 0) + 1;
-
-      // Count by source
-      summary.bySource[log.source] = (summary.bySource[log.source] || 0) + 1;
-    });
-
-    return summary;
-  },
-
-  clear: function () {
-    this.logs = [];
-  },
-};
 
 // Función para inicializar las listas de fuentes de forma segura
 function initializeSources() {
@@ -597,7 +541,7 @@ async function startHarvest() {
   );
 
   try {
-    const result = await crawlAndExtractParallelized(SOURCES);
+    const result = await fetchConvocatorias(SOURCES.map((s) => s.url));
 
     if (result && result.length > 0) {
       allConvocatorias = result;
@@ -644,225 +588,6 @@ async function startHarvest() {
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;
-  }
-}
-
-async function crawlAndExtractParallelized(sources) {
-  try {
-    console.log(`\n🚀 Starting extraction for ${sources.length} sources`);
-    console.log(
-      "✨ ONE API CALL for all URLs - Firecrawl handles parallelization!\n",
-    );
-
-    // Extract all URLs from sources
-    const urls = sources.map((s) => s.url);
-
-    console.log(`📤 Sending ${urls.length} URLs to Firecrawl Extract...`);
-    const startTime = Date.now();
-
-    // ✨ ONE API CALL for all 50 URLs
-    const response = await fetch(
-      "https://hormiguero-lab-api-proxy.vercel.app/api/extract-convocatorias",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          urls: urls, // All 50 URLs at once
-        }),
-      },
-    );
-
-    const data = await response.json();
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-
-    if (!response.ok) {
-      console.error(`❌ Extraction failed:`, data.error);
-      throw new Error(data.error);
-    }
-
-    // Enrich convocatorias with category and source metadata
-    const enrichedConvocatorias = (data.convocatorias || []).map((conv) => {
-      // Try to match convocatoria to source by entity name
-      const source = sources.find(
-        (s) =>
-          s.name.toLowerCase() === conv.entidad.toLowerCase() ||
-          conv.entidad.toLowerCase().includes(s.name.toLowerCase()) ||
-          s.name.toLowerCase().includes(conv.entidad.toLowerCase()),
-      );
-
-      return {
-        ...conv,
-        categoria: source ? source.category : "Sin categoría",
-        fuente: conv.entidad,
-      };
-    });
-
-    console.log(`\n✅ EXTRACTION COMPLETED in ${duration}s!`);
-    console.log(`📊 Summary:`);
-    console.log(`  URLs requested: ${urls.length}`);
-    console.log(`  Total convocatorias: ${enrichedConvocatorias.length}`);
-    console.log(`  Credits used: ${data.credits || "N/A"}`);
-
-    return enrichedConvocatorias;
-  } catch (error) {
-    console.error("❌ Error in extraction:", error);
-    throw error;
-  }
-}
-
-async function fetchAllFromFirecrawlAI(sources) {
-  try {
-    console.log(`🤖 Starting Firecrawl AI Agent for ${sources.length} URLs...`);
-
-    // Extract URLs from sources
-    const urls = sources.map((source) => source.url);
-
-    // Enhanced prompt for convocatorias extraction
-    const prompt = `TAREA CRÍTICA: Extraer TODAS las convocatorias del contenido
-
-INSTRUCCIÓN PRINCIPAL: 
-Tu única tarea es extraer cada convocatoria mencionada en el contenido de las URLs procesadas.
-NO puedes omitir ninguna. NO puedes agrupar. NO puedes simplificar.
-Debes extraer CADA UNA tal como aparece.
-
-ESTRUCTURA DE SALIDA:
-Para cada convocatoria encontrada, crea un objeto JSON con EXACTAMENTE esta estructura:
-{
-  "titulo": "nombre completo de la convocatoria",
-  "entidad": "nombre de la entidad oferente",
-  "descripcion": "descripción detallada",
-  "fechaCierre": "fecha en YYYY-MM-DD o null si no disponible",
-  "enlace": "URL directa o null",
-  "monto": "valor económico, vacantes o null",
-  "requisitos": "requisitos principales o null",
-  "estado": "abierta, cerrada, vigente"
-}
-
-REGLAS ESTRICTAS:
-1. Extrae TODAS las convocatorias sin excepciones
-2. Cada convocatoria debe ser un objeto JSON separado
-3. No combines convocatorias relacionadas
-4. Incluye toda la información disponible en cada campo
-5. Los campos nulos deben ser null (no "N/A", no "", no "no disponible")
-6. Las fechas deben estar en formato YYYY-MM-DD o null
-7. Los enlaces deben ser URLs completas o null
-
-VALIDACIÓN Y SALIDA:
-- Devuelve ÚNICAMENTE un array JSON válido
-- El array debe empezar con [ y terminar con ]
-- Los objetos deben estar separados por comas
-- NO incluyas explicaciones, comentarios o texto adicional
-
-¡AHORA EXTRAE TODAS LAS CONVOCATORIAS!`;
-
-    // Use Firecrawl AI Batch Agent - combines crawling and AI processing in one step
-    const firecrawlAIResponse = await fetch(
-      "https://hormiguero-lab-api-proxy.vercel.app/api/firecrawl-ai",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "batch-agent",
-          urls: urls,
-          prompt: prompt,
-          crawlerOptions: {
-            maxDepth: 2,
-            limit: 20,
-            includePaths: ["convocatorias"],
-            excludePaths: ["login", "admin", "usuario", "register"],
-            allowExternalLinks: false,
-            formats: ["markdown"],
-            onlyMainContent: true,
-            // Enhanced pagination for MinIgualdad website
-            pagination: {
-              enabled: true,
-              maxPages: 10,
-              nextButtonSelector:
-                "a[href*='cur='][href*='+1'], a.next, a.next-page, .next, .next-page",
-              pageParam: "cur",
-            },
-          },
-          agentOptions: {
-            model: "gpt-4o-mini",
-            temperature: 0.2,
-            maxTokens: 8000,
-            batchMode: true,
-          },
-        }),
-      },
-    );
-
-    if (!firecrawlAIResponse.ok) {
-      throw new Error(`Firecrawl AI failed: ${firecrawlAIResponse.status}`);
-    }
-
-    const data = await firecrawlAIResponse.json();
-
-    console.log(`📄 Firecrawl AI response:`, data);
-
-    if (!data.success || !data.results || !Array.isArray(data.results)) {
-      console.error("❌ Invalid response from Firecrawl AI:", data);
-      return [];
-    }
-
-    // Process results
-    let allConvocatorias = [];
-
-    // Flatten results from all URLs
-    for (const result of data.results) {
-      if (result.result) {
-        try {
-          // Parse the AI-generated JSON response
-          const convocatorias = JSON.parse(result.result);
-
-          if (Array.isArray(convocatorias)) {
-            allConvocatorias.push(...convocatorias);
-          } else {
-            console.warn("⚠️ Result is not an array:", result.result);
-          }
-        } catch (parseError) {
-          console.error("❌ Failed to parse result:", parseError.message);
-          console.log("Result content:", result.result);
-        }
-      }
-    }
-
-    console.log(
-      `✅ Successfully extracted ${allConvocatorias.length} convocatorias`,
-    );
-
-    // Enrich with categories and source information
-    const enrichedConvocatorias = allConvocatorias.map((conv) => {
-      // Find the source that matches this convocatoria
-      const source = sources.find(
-        (s) =>
-          s.name === conv.entidad ||
-          s.url.includes(conv.entidad?.toLowerCase() || "") ||
-          conv.descripcion?.toLowerCase().includes(s.name.toLowerCase()),
-      );
-
-      return {
-        ...conv,
-        categoria: source ? source.category : "Sin categoría",
-        fuente: conv.entidad || "Desconocida",
-        // Add source URL for reference
-        fuenteUrl: source ? source.url : null,
-      };
-    });
-
-    console.log("✅ Enriched convocatorias with categories");
-    console.log("📊 Processing Summary:", {
-      totalUrls: urls.length,
-      totalConvocatorias: allConvocatorias.length,
-      enrichedConvocatorias: enrichedConvocatorias.length,
-      metadata: data.metadata,
-    });
-
-    return enrichedConvocatorias;
-  } catch (error) {
-    console.error("❌ Error in Firecrawl AI processing:", error);
-    console.error("Error stack:", error.stack);
-    throw error;
   }
 }
 
@@ -988,64 +713,6 @@ window.onclick = function (event) {
   const modal = document.getElementById("serviceModal");
   if (event.target == modal) closeModal();
 };
-
-// Function to poll batch job for results
-async function pollBatchJob(jobId, jobUrl) {
-  // Poll every 2 seconds for up to 30 seconds (15 attempts)
-  const maxAttempts = 15;
-  const delay = 2000; // 2 seconds
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      // console.log(`Polling attempt ${attempt}/${maxAttempts} for job ${jobId}`);
-
-      const response = await fetch(jobUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Polling failed: " + response.status + " " + response.statusText,
-        );
-      }
-
-      const data = await response.json();
-      // console.log("Polling response:", data);
-
-      // Check if job is completed
-      if (data.status === "completed") {
-        console.log("Batch job completed successfully");
-        // Extract markdown from completed job response
-        if (data.data && Array.isArray(data.data)) {
-          return data.data
-            .map((page) => page.markdown || "")
-            .join("\n\n---\n\n");
-        } else {
-          console.warn("No data found in completed job response");
-          return "";
-        }
-      } else if (data.status === "failed") {
-        console.error("Batch job failed:", data.error || "Unknown error");
-        return "";
-      } else {
-        console.log("Job status: " + data.status + ", waiting...");
-      }
-    } catch (error) {
-      console.error(`Polling attempt ${attempt} failed:`, error.message);
-    }
-
-    // Wait before next attempt (except on last attempt)
-    if (attempt < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-  }
-
-  console.error("Max polling attempts reached, job may still be processing");
-  return "";
-}
 
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeSources === "function") initializeSources();

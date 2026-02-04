@@ -556,7 +556,6 @@ async function startHarvest() {
       );
     } else {
       allConvocatorias = [];
-      currentConvocatorias = []; // Keep empty array
       errorLogger.addLog(
         "Sistema",
         "warning",

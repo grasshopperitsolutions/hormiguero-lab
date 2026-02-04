@@ -526,16 +526,6 @@ async function startHarvest() {
   emptyState.classList.add("hidden");
   allConvocatorias = [];
 
-  errorLogger.clear();
-  errorLogger.addLog(
-    "Sistema",
-    "info",
-    "Iniciando proceso de cosecha de convocatorias",
-    {
-      totalSources: SOURCES.length,
-      categories: [...new Set(SOURCES.map((s) => s.category))],
-    },
-  );
 
   try {
     const result = await fetchConvocatorias(SOURCES.map((s) => s.url));
@@ -543,40 +533,14 @@ async function startHarvest() {
     if (result && result.length > 0) {
       allConvocatorias = result;
       currentConvocatorias = result; // Switch to real data
-      errorLogger.addLog(
-        "Sistema",
-        "success",
-        "Todas las fuentes procesadas exitosamente",
-        {
-          convocatoriasEncontradas: result.length,
-        },
-      );
     } else {
       allConvocatorias = [];
-      errorLogger.addLog(
-        "Sistema",
-        "warning",
-        "No se encontraron convocatorias",
-        {
-          convocatoriasEncontradas: 0,
-        },
-      );
     }
 
     renderResults(currentConvocatorias);
     // Re-initialize filters with new data
     initializeFilters();
   } catch (error) {
-    errorLogger.addLog(
-      "Sistema",
-      "error",
-      "Error crítico en el proceso de cosecha",
-      {
-        errorType: error.constructor.name,
-        errorMessage: error.message,
-        stack: error.stack,
-      },
-    );
     // Ensure empty state is shown on error
     if (emptyState) {
       emptyState.classList.remove("hidden");

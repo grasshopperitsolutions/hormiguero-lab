@@ -511,8 +511,11 @@ function showSection(id) {
   window.scrollTo(0, 0);
 }
 
+const API_BASE = "https://hormiguero-lab-api-proxy.vercel.app";
+
 async function startHarvest() {
   showSection("convocatorias");
+
   const btn = document.querySelector("nav .btn-harvest");
   const loading = document.getElementById("loading");
   const resultsGrid = document.getElementById("resultsGrid");
@@ -525,26 +528,72 @@ async function startHarvest() {
   resultsGrid.innerHTML = "";
   emptyState.classList.add("hidden");
   allConvocatorias = [];
-
+  currentConvocatorias = [];
 
   try {
-    const result = await fetchConvocatorias(SOURCES.map((s) => s.url));
+    const urls = SOURCES.map((s) => s.url);
 
-    if (result && result.length > 0) {
-      allConvocatorias = result;
-      currentConvocatorias = result; // Switch to real data
+    // 1) Single call: crawl all URLs via backend fan‑out
+    const crawlRes = await fetch(`${API_BASE}/api/crawl-single-url`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ urls }),
+    });
+    const crawlData = await crawlRes.json();
+
+    if (!crawlRes.ok || !crawlData.success) {
+      console.error("crawl-single-url batch error:", crawlData);
+      emptyState.classList.remove("hidden");
+      return;
+    }
+
+    const results = Array.isArray(crawlData.results) ? crawlData.results : [];
+
+    const markdownBatch = results
+      .filter((r) => r.success && r.markdown && r.markdown.length > 100)
+      .map((r) => ({
+        url: r.url,
+        markdown: r.markdown,
+      }));
+
+    if (markdownBatch.length === 0) {
+      console.warn("No markdown content to send to AI");
+      emptyState.classList.remove("hidden");
+      return;
+    }
+
+    // 2) Single call: send combined markdown batch to Perplexity
+    const aiRes = await fetch(`${API_BASE}/api/ask-ai`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markdownBatch }),
+    });
+
+    const aiData = await aiRes.json();
+
+    if (!aiRes.ok) {
+      console.error("ask-ai error:", aiData);
+      emptyState.classList.remove("hidden");
+      return;
+    }
+
+    const convocatorias = Array.isArray(aiData.convocatorias)
+      ? aiData.convocatorias
+      : [];
+
+    if (convocatorias.length > 0) {
+      allConvocatorias = convocatorias;
+      currentConvocatorias = convocatorias;
     } else {
       allConvocatorias = [];
+      currentConvocatorias = [];
     }
 
     renderResults(currentConvocatorias);
-    // Re-initialize filters with new data
     initializeFilters();
   } catch (error) {
-    // Ensure empty state is shown on error
-    if (emptyState) {
-      emptyState.classList.remove("hidden");
-    }
+    console.error("Error in startHarvest:", error);
+    emptyState.classList.remove("hidden");
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;

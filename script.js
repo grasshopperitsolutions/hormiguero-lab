@@ -743,7 +743,7 @@ const ASK_AI_API_URL = "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai";
  * @param {string[]} urls - List of URLs to crawl
  * @returns {Promise<Array>} - Array of convocatorias from all URLs
  */
-export async function fetchConvocatorias(urls) {
+async function fetchConvocatorias(urls) {
   if (!Array.isArray(urls) || urls.length === 0) {
     return [];
   }

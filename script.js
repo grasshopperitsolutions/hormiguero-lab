@@ -597,7 +597,7 @@ async function startHarvest() {
   );
 
   try {
-    const result = await fetchAllFromPerplexityBatch(SOURCES);
+    const result = await crawlAndExtractParallelized(SOURCES);
 
     if (result && result.length > 0) {
       allConvocatorias = result;
@@ -647,126 +647,83 @@ async function startHarvest() {
   }
 }
 
-async function fetchAllFromPerplexityBatch(sources) {
+async function crawlAndExtractParallelized(sources) {
   try {
-    console.log(`🚀 Starting parallel crawl of ${sources.length} URLs...`);
+    console.log(`\n🚀 Starting extraction for ${sources.length} sources`);
+    console.log(
+      "✨ ONE API CALL for all URLs - Firecrawl handles parallelization!\n",
+    );
 
-    const BATCH_SIZE = 5; // Process 5 URLs in parallel
-    const allResults = [];
+    // Extract all URLs from sources
+    const urls = sources.map((s) => s.url);
 
-    // Process sources in batches
-    for (let i = 0; i < sources.length; i += BATCH_SIZE) {
-      const batch = sources.slice(i, i + BATCH_SIZE);
-      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-      const totalBatches = Math.ceil(sources.length / BATCH_SIZE);
+    console.log(`📤 Sending ${urls.length} URLs to Firecrawl Extract...`);
+    const startTime = Date.now();
 
-      console.log(`\n📦 Processing batch ${batchNumber} of ${totalBatches}...`);
+    // ✨ ONE API CALL for all 50 URLs
+    const response = await fetch(
+      "https://hormiguero-lab-api-proxy.vercel.app/api/extract-convocatorias",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          urls: urls, // All 50 URLs at once
+        }),
+      },
+    );
 
-      // Crawl all URLs in this batch in parallel
-      const batchPromises = batch.map(async (source) => {
-        try {
-          console.log(`🕷️ Crawling ${source.name}...`);
+    const data = await response.json();
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-          const crawlResponse = await fetch(
-            "https://hormiguero-lab-api-proxy.vercel.app/api/crawl-single-url",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                url: source.url,
-                crawlerOptions: {
-                  maxDepth: 2, // Follow pagination + 1 level deep links
-                  limit: 20, // Max 20 pages per URL
-                  includePaths: ["convocatorias"],
-                  excludePaths: ["login", "admin", "usuario", "register"],
-                  generateMarkdown: true,
-                  onlyMainContent: true, // Get full content (needed for Liferay)
-                  waitFor: 2000, // Wait 2s for JavaScript to load
-                  timeout: 25000,
-                  allowExternalLinks: false,
-                  screenshot: false,
-                },
-              }),
-            },
-          );
-
-          if (!crawlResponse.ok) {
-            throw new Error(`Crawl failed: ${crawlResponse.status}`);
-          }
-
-          const crawlData = await crawlResponse.json();
-
-          // Extract markdown from all pages
-          const pagesScraped = crawlData.data || [];
-          const markdown = pagesScraped
-            .map((page) => `[URL: ${page.url}]\n${page.markdown || ""}`)
-            .join("\n\n---PAGE BREAK---\n\n");
-
-          console.log(
-            `✅ ${source.name}: ${pagesScraped.length} pages scraped`,
-          );
-
-          return {
-            source: source,
-            markdown: markdown,
-            pageCount: pagesScraped.length,
-            success: true,
-          };
-        } catch (error) {
-          console.error(`❌ ${source.name} failed:`, error.message);
-          return {
-            source: source,
-            markdown: "",
-            pageCount: 0,
-            success: false,
-            error: error.message,
-          };
-        }
-      });
-
-      // Wait for all in this batch to complete
-      const batchResults = await Promise.all(batchPromises);
-      allResults.push(...batchResults);
-
-      // Small delay between batches to avoid rate limits
-      if (i + BATCH_SIZE < sources.length) {
-        console.log("⏳ Waiting 2s before next batch...");
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
+    if (!response.ok) {
+      console.error(`❌ Extraction failed:`, data.error);
+      throw new Error(data.error);
     }
 
-    // Combine all successful results
-    const successfulResults = allResults.filter((r) => r.success && r.markdown);
-    const combinedMarkdown = successfulResults
-      .map((r) => r.markdown)
-      .join("\n\n" + "=".repeat(80) + "\n\n");
+    // Enrich convocatorias with category and source metadata
+    const enrichedConvocatorias = (data.convocatorias || []).map((conv) => {
+      // Try to match convocatoria to source by entity name
+      const source = sources.find(
+        (s) =>
+          s.name.toLowerCase() === conv.entidad.toLowerCase() ||
+          conv.entidad.toLowerCase().includes(s.name.toLowerCase()) ||
+          s.name.toLowerCase().includes(conv.entidad.toLowerCase()),
+      );
 
-    const totalPages = allResults.reduce((sum, r) => sum + r.pageCount, 0);
+      return {
+        ...conv,
+        categoria: source ? source.category : "Sin categoría",
+        fuente: conv.entidad,
+      };
+    });
 
-    console.log(`\n📊 Crawl Summary:`);
-    console.log(`   Total sources: ${sources.length}`);
-    console.log(`   Successful: ${successfulResults.length}`);
-    console.log(`   Failed: ${allResults.length - successfulResults.length}`);
-    console.log(`   Total pages scraped: ${totalPages}`);
-    console.log(`   Total markdown: ${combinedMarkdown.length} chars`);
+    console.log(`\n✅ EXTRACTION COMPLETED in ${duration}s!`);
+    console.log(`📊 Summary:`);
+    console.log(`  URLs requested: ${urls.length}`);
+    console.log(`  Total convocatorias: ${enrichedConvocatorias.length}`);
+    console.log(`  Credits used: ${data.credits || "N/A"}`);
 
-    if (!combinedMarkdown || combinedMarkdown.trim().length === 0) {
-      console.warn("⚠️ No markdown content after crawling");
-      return [];
-    }
+    return enrichedConvocatorias;
+  } catch (error) {
+    console.error("❌ Error in extraction:", error);
+    throw error;
+  }
+}
 
-    // STEP 2: Extract with Perplexity (NO WEB SEARCH)
-    console.log("\n📤 Sending to Perplexity for extraction...");
+async function fetchAllFromFirecrawlAI(sources) {
+  try {
+    console.log(`🤖 Starting Firecrawl AI Agent for ${sources.length} URLs...`);
 
+    // Extract URLs from sources
+    const urls = sources.map((source) => source.url);
+
+    // Enhanced prompt for convocatorias extraction
     const prompt = `TAREA CRÍTICA: Extraer TODAS las convocatorias del contenido
 
 INSTRUCCIÓN PRINCIPAL: 
-Tu única tarea es extraer cada convocatoria mencionada en el contenido markdown a continuación.
+Tu única tarea es extraer cada convocatoria mencionada en el contenido de las URLs procesadas.
 NO puedes omitir ninguna. NO puedes agrupar. NO puedes simplificar.
 Debes extraer CADA UNA tal como aparece.
-
-CONTENIDO A ANALIZAR:
-${combinedMarkdown}
 
 ESTRUCTURA DE SALIDA:
 Para cada convocatoria encontrada, crea un objeto JSON con EXACTAMENTE esta estructura:
@@ -798,90 +755,112 @@ VALIDACIÓN Y SALIDA:
 
 ¡AHORA EXTRAE TODAS LAS CONVOCATORIAS!`;
 
-    const perplexityResponse = await fetch(
-      "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai",
+    // Use Firecrawl AI Batch Agent - combines crawling and AI processing in one step
+    const firecrawlAIResponse = await fetch(
+      "https://hormiguero-lab-api-proxy.vercel.app/api/firecrawl-ai",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "sonar-pro",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.2,
-          max_tokens: 20000,
-          disable_search: true,
+          action: "batch-agent",
+          urls: urls,
+          prompt: prompt,
+          crawlerOptions: {
+            maxDepth: 2,
+            limit: 20,
+            includePaths: ["convocatorias"],
+            excludePaths: ["login", "admin", "usuario", "register"],
+            allowExternalLinks: false,
+            formats: ["markdown"],
+            onlyMainContent: true,
+            // Enhanced pagination for MinIgualdad website
+            pagination: {
+              enabled: true,
+              maxPages: 10,
+              nextButtonSelector:
+                "a[href*='cur='][href*='+1'], a.next, a.next-page, .next, .next-page",
+              pageParam: "cur",
+            },
+          },
+          agentOptions: {
+            model: "gpt-4o-mini",
+            temperature: 0.2,
+            maxTokens: 8000,
+            batchMode: true,
+          },
         }),
       },
     );
 
-    if (!perplexityResponse.ok) {
-      throw new Error(`Perplexity failed: ${perplexityResponse.status}`);
+    if (!firecrawlAIResponse.ok) {
+      throw new Error(`Firecrawl AI failed: ${firecrawlAIResponse.status}`);
     }
 
-    const data = await perplexityResponse.json();
-    const content = data.choices[0].message.content;
+    const data = await firecrawlAIResponse.json();
 
-    console.log(`📄 Perplexity response length: ${content.length} characters`);
-    console.log(`📊 Usage:`, data.usage);
+    console.log(`📄 Firecrawl AI response:`, data);
 
-    // Parse JSON
-    let convocatorias = [];
-
-    try {
-      // Try direct parse FIRST (most common case)
-      convocatorias = JSON.parse(content);
-      console.log(
-        `✅ Parsed JSON directly: ${convocatorias.length} convocatorias`,
-      );
-    } catch (directParseError) {
-      // FALLBACK: Try regex extraction (rare case)
-      console.log("⚠️ Direct parse failed, attempting regex extraction...");
-
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-
-      if (!jsonMatch) {
-        console.error("❌ No JSON array found in Perplexity response");
-        console.log("Response preview:", content.substring(0, 500));
-        return [];
-      }
-
-      try {
-        convocatorias = JSON.parse(jsonMatch[0]);
-        console.log(
-          `✅ Parsed JSON from regex: ${convocatorias.length} convocatorias`,
-        );
-      } catch (regexParseError) {
-        console.error(
-          "❌ Failed to parse extracted JSON:",
-          regexParseError.message,
-        );
-        return [];
-      }
-    }
-
-    // Validate result
-    if (!Array.isArray(convocatorias)) {
-      console.error("❌ Parsed result is not an array:", typeof convocatorias);
+    if (!data.success || !data.results || !Array.isArray(data.results)) {
+      console.error("❌ Invalid response from Firecrawl AI:", data);
       return [];
     }
 
+    // Process results
+    let allConvocatorias = [];
+
+    // Flatten results from all URLs
+    for (const result of data.results) {
+      if (result.result) {
+        try {
+          // Parse the AI-generated JSON response
+          const convocatorias = JSON.parse(result.result);
+
+          if (Array.isArray(convocatorias)) {
+            allConvocatorias.push(...convocatorias);
+          } else {
+            console.warn("⚠️ Result is not an array:", result.result);
+          }
+        } catch (parseError) {
+          console.error("❌ Failed to parse result:", parseError.message);
+          console.log("Result content:", result.result);
+        }
+      }
+    }
+
     console.log(
-      `✅ Successfully extracted ${convocatorias.length} convocatorias`,
+      `✅ Successfully extracted ${allConvocatorias.length} convocatorias`,
     );
 
-    // Enrich with categories
-    const enrichedConvocatorias = convocatorias.map((conv) => {
-      const source = sources.find((s) => s.name === conv.entidad);
+    // Enrich with categories and source information
+    const enrichedConvocatorias = allConvocatorias.map((conv) => {
+      // Find the source that matches this convocatoria
+      const source = sources.find(
+        (s) =>
+          s.name === conv.entidad ||
+          s.url.includes(conv.entidad?.toLowerCase() || "") ||
+          conv.descripcion?.toLowerCase().includes(s.name.toLowerCase()),
+      );
+
       return {
         ...conv,
         categoria: source ? source.category : "Sin categoría",
-        fuente: conv.entidad,
+        fuente: conv.entidad || "Desconocida",
+        // Add source URL for reference
+        fuenteUrl: source ? source.url : null,
       };
     });
 
     console.log("✅ Enriched convocatorias with categories");
+    console.log("📊 Processing Summary:", {
+      totalUrls: urls.length,
+      totalConvocatorias: allConvocatorias.length,
+      enrichedConvocatorias: enrichedConvocatorias.length,
+      metadata: data.metadata,
+    });
+
     return enrichedConvocatorias;
   } catch (error) {
-    console.error("❌ Error in parallel crawl:", error);
+    console.error("❌ Error in Firecrawl AI processing:", error);
     console.error("Error stack:", error.stack);
     throw error;
   }

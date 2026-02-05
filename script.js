@@ -2,10 +2,17 @@ const SOURCES = [
   // Ciencia y Tecnología
   // // // // {
   // // // //   id: "minciencias",
-  // // // //   url: "https://minciencias.gov.co/convocatorias",
+  // // // //   url: "https://minciencias.gov.co/convocatorias/todas",
   // // // //   name: "Minciencias",
   // // // //   category: "Ciencia y Tecnología",
   // // // // },
+  // // // // // pages 1–120
+  // // // // ...Array.from({ length: 120 }, (_, i) => ({
+  // // // //   id: "minciencias",
+  // // // //   url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
+  // // // //   name: "Minciencias",
+  // // // //   category: "Ciencia y Tecnología",
+  // // // // })),
   // {
   //   id: "atenea",
   //   url: "https://agenciaatenea.gov.co/convocatorias",
@@ -89,19 +96,19 @@ const SOURCES = [
   {
     id: "minigualdad",
     url: "https://www.minigualdadyequidad.gov.co/convocatorias",
-    name: "MinIgualdad",
+    name: "Ministerio de Igualdad y Equidad",
     category: "Vivienda y Social",
   },
   {
     id: "minigualdad",
     url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-    name: "MinIgualdad",
+    name: "Ministerio de Igualdad y Equidad",
     category: "Vivienda y Social",
   },
   {
     id: "minigualdad",
     url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-    name: "MinIgualdad",
+    name: "Ministerio de Igualdad y Equidad",
     category: "Vivienda y Social",
   },
 
@@ -171,24 +178,25 @@ let currentConvocatorias = []; // Active data source (mock or real)
 // Mock convocatorias array to display until button is pressed
 const mockConvocatorias = [
   {
-    titulo: "Sabiduría que transforma territorio",
-    entidad: "MinIgualdad",
+    titulo:
+      "Convocatoria abierta para la autonomía económica de las mujeres en todas sus diversidades",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Convocatoria dirigida a hombres y mujeres mayores de 60 años que tengan en marcha proyectos culturales, artísticos, deportivos, ambientales o productivos. Ofrece apoyo en elementos e insumos por un valor de hasta 20 millones de pesos para iniciativas que generen impacto positivo en sus comunidades.",
-    fechaCierre: "2026-01-23",
+      "Convocatoria dirigida a mujeres en todas sus diversidades que lideran o desean fortalecer sus iniciativas económicas para conformar una base de datos que permita acceder a futuras acciones del programa de autonomía económica.",
+    fechaCierre: null,
     enlace:
-      "https://fupad.org/aviso-de-manifestacion-de-interes-no-028-de-2026/",
-    monto: "20000000",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/convocatoria-abierta-para-la-autonom%C3%ADa-econ%C3%B3mica-de-las-mujeres-en-todas-sus-diversidades-1?p_r_p_assetEntryId=143534",
+    monto: null,
     requisitos:
-      "Ser mayor de 60 años, tener proyecto cultural, artístico, deportivo, ambiental o productivo en marcha",
-    estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+      "Mujeres en todas sus diversidades que lideran o desean fortalecer iniciativas económicas",
+    estado: "abierta",
+    categoria: "Autonomía económica",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
       "Convocatoria de organizaciones comunitarias para cuidado de personas mayores",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Dirigida a organizaciones sociales sin ánimo de lucro que trabajen en el fortalecimiento de acciones de cuidado y atención a personas mayores. Se entregarán materiales e insumos por valor de hasta 55 millones de pesos a 53 organizaciones del país.",
     fechaCierre: "2026-01-23",
@@ -197,12 +205,12 @@ const mockConvocatorias = [
     requisitos:
       "Ser organización social sin ánimo de lucro, trabajar en cuidado y atención a personas mayores",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Bienestar Social",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo: "Capacidad que emprende",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Apoyará 160 iniciativas productivas de personas con discapacidad o sus familias. Ofrece acompañamiento técnico especializado, capitalización en activos productivos por hasta 5 millones de pesos y formación integral durante ocho meses en áreas de gestión operativa, comercial, financiera y de liderazgo.",
     fechaCierre: "2025-11-24",
@@ -211,13 +219,13 @@ const mockConvocatorias = [
     requisitos:
       "Unidad productiva con personas con discapacidad o familias, mínimo 1 año de funcionamiento, estar registrada en RLCPD",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Inclusión Productiva",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
       'Primer Encuentro Nacional de Sindicalistas LGBTIQ+ "León Zuleta y Diana Navarro"',
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Encuentro para fortalecer liderazgo y visibilizar el posicionamiento y necesidades de sindicalistas de sectores LGBTIQ+ en las organizaciones sindicales. Se realizará los días 13 y 14 de noviembre en Bogotá.",
     fechaCierre: "2025-10-31",
@@ -225,12 +233,12 @@ const mockConvocatorias = [
     monto: null,
     requisitos: "Ser sindicalista, hacer parte de sectores sociales LGBTIQ+",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Derechos Laborales",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo: "Convención Nacional Transfemenina",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Espacio de construcción colectiva de agenda social para personas transfemeninas que refleje sus realidades, necesidades y propuestas, fortaleciendo sus voces y avanzando en reivindicación de derechos.",
     fechaCierre: "2025-10-30",
@@ -238,12 +246,12 @@ const mockConvocatorias = [
     monto: null,
     requisitos: "Ser persona transfemenina, mayor de 18 años",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Derechos Humanos",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo: "Pre-Encuentros Regionales hacia la II Convención Nacional LGBTIQ+",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Serie de convenciones regionales orientadas a la construcción de una agenda del movimiento social LGBTIQ+. Se realizarán en cinco regiones (Amazonas, Orinoquia, Pacífica, Andina y Caribe) con fechas entre noviembre de 2025.",
     fechaCierre: null,
@@ -253,12 +261,12 @@ const mockConvocatorias = [
     requisitos:
       "Ser mayor de 18 años, reconocerse como LGBTIQ+, tener aval de organización social o ser representante de espacio LGBTIQ+, residir en el departamento de la región",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Participación Ciudadana",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo: "Estímulos para el Cambio 2025",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Apoyo en especie otorgado a Barras Tradicionales, filiales barristas, organizaciones y colectivos futboleros. Incluye consolidación organizacional, fortalecimiento de miembros y acompañamiento técnico en actividades de Barrismo Social.",
     fechaCierre: null,
@@ -268,13 +276,13 @@ const mockConvocatorias = [
     requisitos:
       "Ser barra tradicional, filial barrista, organización o colectivo futbolero, tener mínimo 2 años de experiencia en Barrismo Social, contar con mínimo 15 integrantes (50% jóvenes 14-28 años)",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Deporte y Comunidad",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
       "Promoviendo Paz en los Territorios - Fortalecimiento a las Economías Populares de la Población Afrodescendiente en el Oriente de Cali",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Proyecto para fortalecer las economías populares afrodescendientes, promover la paz territorial y construir condiciones de bienestar para comunidades del oriente de Cali.",
     fechaCierre: null,
@@ -283,13 +291,13 @@ const mockConvocatorias = [
     requisitos:
       "Ser emprendedor/a afrodescendiente del oriente de Cali, estar interesado en fortalecer economía popular",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Desarrollo Territorial",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
       "Convocatoria de Selección de Representantes de la Sociedad Civil al Consejo Nacional de Discapacidad",
-    entidad: "MinIgualdad",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
       "Convocatoria pública para seleccionar representantes de la sociedad civil ante el Consejo Nacional de Discapacidad. Busca que personas con discapacidad participen directamente en decisiones que afecten sus derechos.",
     fechaCierre: "2025-10-23",
@@ -298,13 +306,13 @@ const mockConvocatorias = [
     requisitos:
       "Ser organización con personas con discapacidad, cumplir Decreto 1350 de 2018, candidatos con certificado de discapacidad vigente, mayores de edad, nacionalidad colombiana",
     estado: "cerrada",
-    categoria: "Vivienda y Social",
-    fuente: "MinIgualdad",
+    categoria: "Participación Política",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
       "CONVOCATORIA PARA EL FORTALECIMIENTO DE CAPACIDADES DE CIENCIA, TECNOLOGÍA E INNOVACIÓN EN EL DEPARTAMENTO DE CÓRDOBA (Convocatoria 51)",
-    entidad: "Minciencias",
+    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
     descripcion:
       "Fortalecer las capacidades de CTeI en Córdoba mediante proyectos de convergencia regional que impulsen productividad y competitividad según vocaciones territoriales.",
     fechaCierre: "2026-02-27",
@@ -314,13 +322,13 @@ const mockConvocatorias = [
     requisitos:
       "Entidades del SNCTI, universidades, centros de investigación, centros de desarrollo tecnológico",
     estado: "abierta",
-    categoria: "Ciencia y Tecnología",
-    fuente: "Minciencias",
+    categoria: "Investigación y Desarrollo",
+    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
   },
   {
     titulo:
       "FORTALECIMIENTO Y CREACIÓN DE NUEVOS CENTROS E INSTITUTOS DE INVESTIGACIÓN, CENTROS DE DESARROLLO TECNOLÓGICO Y CENTROS DE CIENCIA (Convocatoria 45)",
-    entidad: "Minciencias",
+    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
     descripcion:
       "Aumentar la capacidad de investigación de centros existentes y crear nuevos centros de investigación, desarrollo tecnológico y ciencia. Se financiarán 4 proyectos: 1 de creación de centros hasta 140 mil millones y 3 de fortalecimiento hasta 20 mil millones cada uno.",
     fechaCierre: "2026-02-20",
@@ -330,13 +338,13 @@ const mockConvocatorias = [
     requisitos:
       "Instituciones de Educación Superior, centros de investigación, centros de desarrollo tecnológico, entidades territoriales, pueden participar individual o en alianza",
     estado: "abierta",
-    categoria: "Ciencia y Tecnología",
-    fuente: "Minciencias",
+    categoria: "Infraestructura Científica",
+    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
   },
   {
     titulo:
       "Convocatoria para la formación de capital humano de alto nivel para las regiones - docentes de establecimientos educativos oficiales de Cundinamarca (Convocatoria 973)",
-    entidad: "Minciencias",
+    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
     descripcion:
       "Incrementar disponibilidad de capital humano con capacidades de investigación en prácticas pedagógicas en establecimientos educativos oficiales del Departamento de Cundinamarca.",
     fechaCierre: "2026-02-13",
@@ -346,12 +354,12 @@ const mockConvocatorias = [
     requisitos:
       "Docentes de establecimientos educativos oficiales de Cundinamarca",
     estado: "abierta",
-    categoria: "Ciencia y Tecnología",
-    fuente: "Minciencias",
+    categoria: "Formación Docente",
+    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
   },
   {
     titulo: "CONVOCATORIA EN INVESTIGACIÓN BÁSICA (Convocatoria 50)",
-    entidad: "Minciencias",
+    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
     descripcion:
       "Generar nuevo conocimiento en líneas temáticas de ciencias naturales, ciencias sociales y humanidades a través de investigación básica orientada para aportar a comprensión de fenómenos complejos.",
     fechaCierre: "2025-12-16",
@@ -361,13 +369,13 @@ const mockConvocatorias = [
     requisitos:
       "Instituciones de Educación Superior, Centros/Institutos de Investigación, Centros de Ciencia",
     estado: "cerrada",
-    categoria: "Ciencia y Tecnología",
-    fuente: "Minciencias",
+    categoria: "Conocimiento Científico",
+    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
   },
   {
     titulo:
       "CONVOCATORIA COLOMBIA INTELIGENTE: INFRAESTRUCTURA PARA EL DESARROLLO DE LA INTELIGENCIA ARTIFICIAL (Convocatoria 46)",
-    entidad: "Minciencias",
+    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
     descripcion:
       "Impulsar infraestructura, desarrollo científico y tecnológico en IA mediante creación y consolidación de capacidades nacionales avanzadas para fortalecer soberanía tecnológica.",
     fechaCierre: "2025-12-16",
@@ -377,8 +385,8 @@ const mockConvocatorias = [
     requisitos:
       "Alianzas con mínimo: 1 IES acreditada de alta calidad, 1 actor SNCTI reconocido, 2 entidades territoriales (1 gobernación y 1 alcaldía), 1 empresa nacional constituida legalmente",
     estado: "cerrada",
-    categoria: "Ciencia y Tecnología",
-    fuente: "Minciencias",
+    categoria: "Tecnología Emergente",
+    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
   },
 ];
 
@@ -484,9 +492,10 @@ window.onload = () => {
   initializeSources();
   // Set up unified data source with mock data initially
   currentConvocatorias = mockConvocatorias;
-  renderResults(currentConvocatorias);
-  // Initialize dynamic filters
+  // Initialize dynamic filters first
   initializeFilters();
+  // Then render results
+  renderResults(currentConvocatorias);
 };
 
 function showSection(id) {
@@ -656,8 +665,8 @@ function renderResults(data) {
                     <h3 class="serif text-3xl font-bold text-stone-900 leading-tight">${item.titulo}</h3>
                     <p class="text-stone-500 leading-relaxed text-sm">${item.descripcion || "Sin descripción detallada."}</p>
                     <div class="pt-6 flex items-center justify-between">
-                        <span class="text-xs font-bold text-stone-400 serif italic">${item.fecha_cierre || "TBD"}</span>
-                        <a href="${item.url || "#"}" target="_blank" class="text-earth-dark font-bold text-sm flex items-center gap-2 hover:gap-4 transition-all">
+                        <span class="text-xs font-bold text-stone-400 serif italic">${item.fechaCierre || "TBD"}</span>
+                        <a href="${item.enlace || "#"}" target="_blank" class="text-earth-dark font-bold text-sm flex items-center gap-2 hover:gap-4 transition-all">
                             VER DETALLES <i class="fas fa-arrow-right text-xs"></i>
                         </a>
                     </div>
@@ -749,244 +758,5 @@ function clearFilters() {
   // Ejecutar la lógica de filtrado de script.js para actualizar la UI
   if (typeof applyFilters === "function") {
     applyFilters();
-  }
-}
-
-// fetch-convocatorias methods
-
-// API endpoints
-const CRAWL_API_URL =
-  "https://hormiguero-lab-api-proxy.vercel.app/api/crawl-batch-urls";
-const ASK_AI_API_URL = "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai";
-
-/**
- * Fetches convocatorias by crawling multiple URLs in parallel
- * and then processing the results with AI in batches of 5.
- *
- * @param {string[]} urls - List of URLs to crawl
- * @returns {Promise<Array>} - Array of convocatorias from all URLs
- */
-async function fetchConvocatorias(urls) {
-  if (!Array.isArray(urls) || urls.length === 0) {
-    return [];
-  }
-
-  try {
-    // Step 1: Crawl all URLs in parallel
-    console.log(`Starting parallel crawl for ${urls.length} URLs...`);
-    const crawlPromises = urls.map((url) => crawlSingleUrl(url));
-    const crawlResults = await Promise.all(crawlPromises);
-    console.log(`Crawl completed for ${crawlResults.length} URLs`);
-
-    // Filter out failed crawls
-    const successfulCrawls = crawlResults.filter(
-      (result) => result.markdown && result.markdown.length > 0,
-    );
-    console.log(`${successfulCrawls.length} URLs crawled successfully`);
-
-    // Step 2: Process results in batches of 5 with AI
-    const batchSize = 5;
-    const allConvocatorias = [];
-
-    for (let i = 0; i < successfulCrawls.length; i += batchSize) {
-      const batch = successfulCrawls.slice(i, i + batchSize);
-      console.log(
-        `Processing batch ${Math.floor(i / batchSize) + 1} (${batch.length} URLs)...`,
-      );
-
-      try {
-        const batchConvocatorias = await askAiForBatchConvocatorias(batch);
-        allConvocatorias.push(...batchConvocatorias);
-        console.log(
-          `Batch ${Math.floor(i / batchSize) + 1} completed. Total convocatorias so far: ${allConvocatorias.length}`,
-        );
-      } catch (error) {
-        console.error(
-          `Error processing batch ${Math.floor(i / batchSize) + 1}:`,
-          error,
-        );
-        // Continue with next batch even if one fails
-      }
-    }
-
-    console.log(
-      `AI processing completed. Total convocatorias found: ${allConvocatorias.length}`,
-    );
-    return allConvocatorias;
-  } catch (error) {
-    console.error("Error fetching convocatorias:", error);
-    throw error;
-  }
-}
-
-/**
- * Crawls a single URL using the crawl-batch-urls API.
- *
- * @param {string} url - URL to crawl
- * @returns {Promise<Object>} - Crawl result with markdown content
- */
-async function crawlSingleUrl(url) {
-  try {
-    const response = await fetch(CRAWL_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: url,
-        crawlerOptions: {
-          maxDepth: 2,
-          limit: 20,
-          includePaths: ["convocatorias"],
-          excludePaths: ["login", "admin", "usuario", "register"],
-          allowExternalLinks: false,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Crawl API error: ${response.status} - ${response.statusText}`,
-      );
-    }
-
-    const data = await response.json();
-    return {
-      url: url,
-      markdown: data.markdown || "",
-      pagesScraped: data.pagesScraped || 0,
-    };
-  } catch (error) {
-    console.error(`Error crawling ${url}:`, error);
-    return {
-      url: url,
-      markdown: "",
-      pagesScraped: 0,
-      error: error.message,
-    };
-  }
-}
-
-/**
- * Asks AI to extract convocatorias from a batch of markdown contents.
- * Sends up to 5 URLs worth of markdown in a single API call.
- *
- * @param {Array<Object>} batch - Array of crawl results (up to 5)
- * @returns {Promise<Array>} - Array of convocatorias extracted
- */
-async function askAiForBatchConvocatorias(batch) {
-  try {
-    // Construct the batch context with clear URL separators
-    const batchContext = batch
-      .map((item, index) => {
-        return `
-=== FUENTE ${index + 1}: ${item.url} ===
-
-${item.markdown} 
-
-=== FIN FUENTE ${index + 1} ===
-`;
-      })
-      .join("\n\n");
-
-    const systemPrompt = `Eres un experto en análisis de convocatorias públicas en Colombia. Tu tarea es extraer información estructurada sobre convocatorias (calls for proposals, becas, empleos, financiamiento, etc.) de contenido web en markdown.
-
-IMPORTANTE: Responde ÚNICAMENTE con un array JSON válido. No incluyas texto explicativo antes o después del JSON.
-
-Cada convocatoria debe tener esta estructura exacta:
-{
-  "titulo": "Título completo de la convocatoria",
-  "entidad": "Nombre de la entidad que convoca",
-  "descripcion": "Descripción detallada",
-  "fechaCierre": "YYYY-MM-DD o null si no hay fecha",
-  "enlace": "URL completa de la convocatoria si está disponible",
-  "monto": "Monto en COP como string o null",
-  "requisitos": "Requisitos principales resumidos",
-  "estado": "abierta, cerrada o vigente",
-  "categoria": "Categoría de la convocatoria",
-  "fuente": "Nombre de la entidad fuente"
-}`;
-
-    const userPrompt = `Analiza el siguiente contenido de ${batch.length} sitios web y extrae TODAS las convocatorias que encuentres.
-
-${batchContext}
-
-INSTRUCCIONES:
-1. Extrae TODAS las convocatorias encontradas en las ${batch.length} fuentes
-2. Para cada convocatoria, completa todos los campos posibles
-3. Si no encuentras un dato, usa null
-4. Determina el estado basándote en fechas de cierre (si la fecha ya pasó, estado="cerrada")
-5. Responde SOLO con el array JSON, sin texto adicional
-
-Formato de respuesta (ejemplo):
-[
-  {
-    "titulo": "Convocatoria Nacional de CTeI 2026",
-    "entidad": "Minciencias",
-    "descripcion": "Convocatoria para proyectos de investigación en ciencia, tecnología e innovación...",
-    "fechaCierre": "2026-03-15",
-    "enlace": "https://....",
-    "monto": "500000000",
-    "requisitos": "Grupos de investigación categoría A o B, experiencia mínima 3 años",
-    "estado": "abierta",
-    "categoria": "Ciencia y Tecnología",
-    "fuente": "Minciencias"
-  }
-]`;
-
-    const response = await fetch(ASK_AI_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: userPrompt,
-          },
-        ],
-        model: "llama-3.1-sonar-large-128k-online", // Perplexity Sonar model
-        temperature: 0.2, // Low temperature for consistent extraction
-        max_tokens: 12000,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `AI API error: ${response.status} - ${response.statusText} - ${errorText}`,
-      );
-    }
-
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || "[]";
-
-    // Parse the JSON response
-    let convocatorias = [];
-    try {
-      // Try to extract JSON from response (in case there's extra text)
-      convocatorias = JSON.parse(aiResponse);
-
-      // Validate and ensure each convocatoria has required fields
-      convocatorias = convocatorias.filter((conv) => {
-        return conv.titulo && conv.entidad && conv.descripcion;
-      });
-
-      console.log(`Extracted ${convocatorias.length} convocatorias from batch`);
-    } catch (parseError) {
-      console.error("Error parsing AI response as JSON:", parseError);
-      console.log("AI Response:", aiResponse);
-      return [];
-    }
-
-    return convocatorias;
-  } catch (error) {
-    console.error(`Error processing AI batch:`, error);
-    return [];
   }
 }

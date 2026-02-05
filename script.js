@@ -179,119 +179,132 @@ let currentConvocatorias = []; // Active data source (mock or real)
 const mockConvocatorias = [
   {
     titulo:
-      "Convocatoria abierta para la autonomía económica de las mujeres en todas sus diversidades",
+      "Gobierno del Cambio abre convocatorias para potenciar el cuidado de las personas mayores",
     entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Convocatoria dirigida a mujeres en todas sus diversidades que lideran o desean fortalecer sus iniciativas económicas para conformar una base de datos que permita acceder a futuras acciones del programa de autonomía económica.",
+      "Convocatoria para potenciar el cuidado de las personas mayores a través de diversas iniciativas del Gobierno del Cambio. Publicada el 2026-01-21.",
     fechaCierre: null,
     enlace:
-      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/convocatoria-abierta-para-la-autonom%C3%ADa-econ%C3%B3mica-de-las-mujeres-en-todas-sus-diversidades-1?p_r_p_assetEntryId=143534",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/gobierno-del-cambio-abre-convocatorias-para-potenciar-el-cuidado-de-las-personas-mayores?p_r_p_assetEntryId=165938",
     monto: null,
-    requisitos:
-      "Mujeres en todas sus diversidades que lideran o desean fortalecer iniciativas económicas",
+    requisitos: "No especificados en la fuente",
     estado: "abierta",
-    categoria: "Autonomía económica",
+    categoria: "Cuidado personas mayores",
     fuente: "Ministerio de Igualdad y Equidad",
   },
   {
-    titulo:
-      "Convocatoria de organizaciones comunitarias para cuidado de personas mayores",
+    titulo: "SABIDURÍAS QUE TRANSFORMAN",
     entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Dirigida a organizaciones sociales sin ánimo de lucro que trabajen en el fortalecimiento de acciones de cuidado y atención a personas mayores. Se entregarán materiales e insumos por valor de hasta 55 millones de pesos a 53 organizaciones del país.",
-    fechaCierre: "2026-01-23",
-    enlace: "https://fupad.org/manifestacion-de-interes/",
-    monto: "55000000",
-    requisitos:
-      "Ser organización social sin ánimo de lucro, trabajar en cuidado y atención a personas mayores",
-    estado: "cerrada",
-    categoria: "Bienestar Social",
-    fuente: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    titulo: "Capacidad que emprende",
-    entidad: "Ministerio de Igualdad y Equidad",
-    descripcion:
-      "Apoyará 160 iniciativas productivas de personas con discapacidad o sus familias. Ofrece acompañamiento técnico especializado, capitalización en activos productivos por hasta 5 millones de pesos y formación integral durante ocho meses en áreas de gestión operativa, comercial, financiera y de liderazgo.",
-    fechaCierre: "2025-11-24",
-    enlace: "https://n9.cl/1bl05",
-    monto: "5000000",
-    requisitos:
-      "Unidad productiva con personas con discapacidad o familias, mínimo 1 año de funcionamiento, estar registrada en RLCPD",
-    estado: "cerrada",
-    categoria: "Inclusión Productiva",
-    fuente: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    titulo:
-      'Primer Encuentro Nacional de Sindicalistas LGBTIQ+ "León Zuleta y Diana Navarro"',
-    entidad: "Ministerio de Igualdad y Equidad",
-    descripcion:
-      "Encuentro para fortalecer liderazgo y visibilizar el posicionamiento y necesidades de sindicalistas de sectores LGBTIQ+ en las organizaciones sindicales. Se realizará los días 13 y 14 de noviembre en Bogotá.",
-    fechaCierre: "2025-10-31",
-    enlace: "https://forms.office.com/r/NCe8XxkQuS",
-    monto: null,
-    requisitos: "Ser sindicalista, hacer parte de sectores sociales LGBTIQ+",
-    estado: "cerrada",
-    categoria: "Derechos Laborales",
-    fuente: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    titulo: "Convención Nacional Transfemenina",
-    entidad: "Ministerio de Igualdad y Equidad",
-    descripcion:
-      "Espacio de construcción colectiva de agenda social para personas transfemeninas que refleje sus realidades, necesidades y propuestas, fortaleciendo sus voces y avanzando en reivindicación de derechos.",
-    fechaCierre: "2025-10-30",
-    enlace: "https://acortar.link/eJRygy",
-    monto: null,
-    requisitos: "Ser persona transfemenina, mayor de 18 años",
-    estado: "cerrada",
-    categoria: "Derechos Humanos",
-    fuente: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    titulo: "Pre-Encuentros Regionales hacia la II Convención Nacional LGBTIQ+",
-    entidad: "Ministerio de Igualdad y Equidad",
-    descripcion:
-      "Serie de convenciones regionales orientadas a la construcción de una agenda del movimiento social LGBTIQ+. Se realizarán en cinco regiones (Amazonas, Orinoquia, Pacífica, Andina y Caribe) con fechas entre noviembre de 2025.",
+      "Convocatoria para fortalecer y reconocer iniciativas lideradas por personas mayores que promuevan la inclusión y dignificación de la vejez. Publicada el 2026-01-14.",
     fechaCierre: null,
     enlace:
-      "https://forms.office.com/pages/responsepage.aspx?id=yA96gELLr0CgDBnP1DankDgzQ8P7uyJDofX2pvCQLDZUQk9UWTVTMk1VTUMxOEpBMzc2MzRSRVNJOC4u&origin=lprLink&route=shorturl",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/sabidur%C3%ADas-que-transforman?p_r_p_assetEntryId=162683",
     monto: null,
-    requisitos:
-      "Ser mayor de 18 años, reconocerse como LGBTIQ+, tener aval de organización social o ser representante de espacio LGBTIQ+, residir en el departamento de la región",
-    estado: "cerrada",
-    categoria: "Participación Ciudadana",
+    requisitos: "Iniciativas lideradas por personas mayores",
+    estado: "abierta",
+    categoria: "Personas mayores",
     fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo: "Estímulos para el Cambio 2025",
     entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Apoyo en especie otorgado a Barras Tradicionales, filiales barristas, organizaciones y colectivos futboleros. Incluye consolidación organizacional, fortalecimiento de miembros y acompañamiento técnico en actividades de Barrismo Social.",
-    fechaCierre: null,
+      "Apoyo en especie otorgado a Barras Tradicionales, filiales barristas, organizaciones y/o colectivos/as futboleros/as. Inicio 12 noviembre, cierre 19 noviembre 2025. Publicada 2025-11-12.",
+    fechaCierre: "2025-11-19",
     enlace:
-      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/est%C3%ADmulos-para-el-cambio-2025",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/est%C3%ADmulos-para-el-cambio-2025?p_r_p_assetEntryId=149564",
     monto: null,
     requisitos:
-      "Ser barra tradicional, filial barrista, organización o colectivo futbolero, tener mínimo 2 años de experiencia en Barrismo Social, contar con mínimo 15 integrantes (50% jóvenes 14-28 años)",
+      "Barras tradicionales, filiales barristas, organizaciones futboleras",
     estado: "cerrada",
-    categoria: "Deporte y Comunidad",
+    categoria: "Estímulos culturales",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Capacidad que emprende",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Apoyaremos 160 iniciativas productivas de personas con discapacidad o sus familias. Publicada 2025-10-30.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/capacidad-que-emprende?p_r_p_assetEntryId=146645",
+    monto: null,
+    requisitos: "Personas con discapacidad o sus familias",
+    estado: "cerrada",
+    categoria: "Emprendimiento discapacidad",
     fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
-      "Promoviendo Paz en los Territorios - Fortalecimiento a las Economías Populares de la Población Afrodescendiente en el Oriente de Cali",
+      "Primer Encuentro Nacional de Sindicalistas LGBTIQ+ León Zuleta y Diana Navarro",
     entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Proyecto para fortalecer las economías populares afrodescendientes, promover la paz territorial y construir condiciones de bienestar para comunidades del oriente de Cali.",
+      "El encuentro busca fortalecer tu liderazgo y visibilizar el posicionamiento y visibilidad de tus necesidades en las organizaciones sindicales. Publicada 2025-10-29.",
     fechaCierre: null,
-    enlace: "https://ee2.minigualdadyequidad.gov.co/x/zWEhKy1a",
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/primer-encuentro-nacional-de-sindicalistas-%C2%A0lgbtiq-le%C3%B3n-zuleta-y-diana-navarro?p_r_p_assetEntryId=146388",
     monto: null,
-    requisitos:
-      "Ser emprendedor/a afrodescendiente del oriente de Cali, estar interesado en fortalecer economía popular",
+    requisitos: "Sindicalistas LGBTIQ+",
     estado: "cerrada",
-    categoria: "Desarrollo Territorial",
+    categoria: "Encuentros sindicales LGBTIQ+",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Convención Nacional Transfemenina",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Tu participación es clave para fortalecer nuestras voces y avanzar en la reivindicación de derechos. Publicada 2025-10-28.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/convenci%C3%B3n-nacional-transfemenina?p_r_p_assetEntryId=146358",
+    monto: null,
+    requisitos: "Población transfemenina",
+    estado: "cerrada",
+    categoria: "Convenciones LGBTIQ+",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Promoviendo Paz en los Territorios",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Emprendedoras y Emprendedores Afrodescendientes del oriente de Cali. Publicada 2025-10-28.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/promoviendo-paz-en-los-territorios?p_r_p_assetEntryId=146023",
+    monto: null,
+    requisitos: "Emprendedores afrodescendientes del oriente de Cali",
+    estado: "cerrada",
+    categoria: "Emprendimiento afro",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Pre-Encuentros Regionales hacia la II Convención Nacional LGBTIQ+",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Cronograma para las inscripciones a los pre-encuentros regionales hacia la II Convención Nacional LGBTIQ+. Publicada 2025-10-28.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/pre-encuentros-regionales-hacia-la-ii-convenci%C3%B3n-nacional-lgbtiq-?p_r_p_assetEntryId=145879",
+    monto: null,
+    requisitos: "Población LGBTIQ+",
+    estado: "cerrada",
+    categoria: "Encuentros LGBTIQ+",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo:
+      "Convocatoria abierta para la autonomía económica de las mujeres en todas sus diversidades",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Convocatoria dirigida a mujeres en todas sus diversidades que lideran o desean fortalecer sus iniciativas económicas para conformar base de datos. Publicada 2025-10-12.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/convocatoria-abierta-para-la-autonom%C3%ADa-econ%C3%B3mica-de-las-mujeres-en-todas-sus-diversidades-1?p_r_p_assetEntryId=143534",
+    monto: null,
+    requisitos: "Mujeres en todas sus diversidades con iniciativas económicas",
+    estado: "cerrada",
+    categoria: "Autonomía económica mujeres",
     fuente: "Ministerio de Igualdad y Equidad",
   },
   {
@@ -299,94 +312,114 @@ const mockConvocatorias = [
       "Convocatoria de Selección de Representantes de la Sociedad Civil al Consejo Nacional de Discapacidad",
     entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Convocatoria pública para seleccionar representantes de la sociedad civil ante el Consejo Nacional de Discapacidad. Busca que personas con discapacidad participen directamente en decisiones que afecten sus derechos.",
-    fechaCierre: "2025-10-23",
-    enlace: "https://acortar.link/UOcBL4",
+      "Proceso para que personas con discapacidad participen directamente en decisiones que afectan su vida y derechos. Publicada 2025-10-16.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/convocatoria-de-selecci%C3%B3n-de-representantes-de-la-sociedad-civil-al-consejo-nacional-de-discapacidad?p_r_p_assetEntryId=143309",
     monto: null,
-    requisitos:
-      "Ser organización con personas con discapacidad, cumplir Decreto 1350 de 2018, candidatos con certificado de discapacidad vigente, mayores de edad, nacionalidad colombiana",
+    requisitos: "Personas con discapacidad",
     estado: "cerrada",
-    categoria: "Participación Política",
+    categoria: "Representación discapacidad",
     fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
-      "CONVOCATORIA PARA EL FORTALECIMIENTO DE CAPACIDADES DE CIENCIA, TECNOLOGÍA E INNOVACIÓN EN EL DEPARTAMENTO DE CÓRDOBA (Convocatoria 51)",
-    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
+      "CRÉDITOS EDUCATIVOS PARA PERSONAS CON DISCAPACIDAD Y POBLACIÓN LGBTIQ+",
+    entidad: "Ministerio de Igualdad y Equidad - ICETEX - FONIGUALDAD",
     descripcion:
-      "Fortalecer las capacidades de CTeI en Córdoba mediante proyectos de convergencia regional que impulsen productividad y competitividad según vocaciones territoriales.",
-    fechaCierre: "2026-02-27",
+      "Créditos condonables de educación superior para personas con discapacidad y población LGBTIQ+. Cierre de inscripciones: 15 de octubre de 2025. Publicada 2025-10-13.",
+    fechaCierre: "2025-10-15",
     enlace:
-      "https://minciencias.gov.co/convocatorias/plan-convocatorias-asctei-2025-2026/convocatoria-para-el-fortalecimiento-capacidades",
-    monto: "17154450476",
-    requisitos:
-      "Entidades del SNCTI, universidades, centros de investigación, centros de desarrollo tecnológico",
-    estado: "abierta",
-    categoria: "Investigación y Desarrollo",
-    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
-  },
-  {
-    titulo:
-      "FORTALECIMIENTO Y CREACIÓN DE NUEVOS CENTROS E INSTITUTOS DE INVESTIGACIÓN, CENTROS DE DESARROLLO TECNOLÓGICO Y CENTROS DE CIENCIA (Convocatoria 45)",
-    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
-    descripcion:
-      "Aumentar la capacidad de investigación de centros existentes y crear nuevos centros de investigación, desarrollo tecnológico y ciencia. Se financiarán 4 proyectos: 1 de creación de centros hasta 140 mil millones y 3 de fortalecimiento hasta 20 mil millones cada uno.",
-    fechaCierre: "2026-02-20",
-    enlace:
-      "https://minciencias.gov.co/convocatorias/plan-convocatorias-asctei-2025-2026/fortalecimiento-y-creacion-nuevos-centros-e",
-    monto: "200000000000",
-    requisitos:
-      "Instituciones de Educación Superior, centros de investigación, centros de desarrollo tecnológico, entidades territoriales, pueden participar individual o en alianza",
-    estado: "abierta",
-    categoria: "Infraestructura Científica",
-    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
-  },
-  {
-    titulo:
-      "Convocatoria para la formación de capital humano de alto nivel para las regiones - docentes de establecimientos educativos oficiales de Cundinamarca (Convocatoria 973)",
-    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
-    descripcion:
-      "Incrementar disponibilidad de capital humano con capacidades de investigación en prácticas pedagógicas en establecimientos educativos oficiales del Departamento de Cundinamarca.",
-    fechaCierre: "2026-02-13",
-    enlace:
-      "https://minciencias.gov.co/convocatorias/formacion-y-vinculacion-capital-humano-alto-nivel/convocatoria-para-la-formacion-3",
-    monto: "877800000",
-    requisitos:
-      "Docentes de establecimientos educativos oficiales de Cundinamarca",
-    estado: "abierta",
-    categoria: "Formación Docente",
-    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
-  },
-  {
-    titulo: "CONVOCATORIA EN INVESTIGACIÓN BÁSICA (Convocatoria 50)",
-    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
-    descripcion:
-      "Generar nuevo conocimiento en líneas temáticas de ciencias naturales, ciencias sociales y humanidades a través de investigación básica orientada para aportar a comprensión de fenómenos complejos.",
-    fechaCierre: "2025-12-16",
-    enlace:
-      "https://minciencias.gov.co/convocatorias/plan-convocatorias-asctei-2025-2026/convocatoria-investigacion-basica",
-    monto: "237398000000",
-    requisitos:
-      "Instituciones de Educación Superior, Centros/Institutos de Investigación, Centros de Ciencia",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/recursos-para-estudiantes-con-discapacidad-y-poblaci%C3%B3n-lgbtiq-?p_r_p_assetEntryId=142708",
+    monto: null,
+    requisitos: "Estudiantes con discapacidad o LGBTIQ+",
     estado: "cerrada",
-    categoria: "Conocimiento Científico",
-    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
+    categoria: "Créditos educativos",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
   {
     titulo:
-      "CONVOCATORIA COLOMBIA INTELIGENTE: INFRAESTRUCTURA PARA EL DESARROLLO DE LA INTELIGENCIA ARTIFICIAL (Convocatoria 46)",
-    entidad: "Ministerio de Ciencia, Tecnología e Innovación",
+      "Elección de mujeres representantes al Comité Nacional de Seguimiento a la Ley 1257 de 2008",
+    entidad: "Ministerio de Igualdad y Equidad",
     descripcion:
-      "Impulsar infraestructura, desarrollo científico y tecnológico en IA mediante creación y consolidación de capacidades nacionales avanzadas para fortalecer soberanía tecnológica.",
-    fechaCierre: "2025-12-16",
+      "Mujeres de todas las regiones podrán postularse como candidatas o inscribirse como votantes. Publicada 2025-10-01.",
+    fechaCierre: null,
     enlace:
-      "https://minciencias.gov.co/convocatorias/plan-convocatorias-asctei-2025-2026/convocatoria-colombia-inteligente-infraestructura",
-    monto: "630000000000",
-    requisitos:
-      "Alianzas con mínimo: 1 IES acreditada de alta calidad, 1 actor SNCTI reconocido, 2 entidades territoriales (1 gobernación y 1 alcaldía), 1 empresa nacional constituida legalmente",
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/elecci%C3%B3n-de-mujeres-representantes-al-comit%C3%A9-nacional-de-seguimiento-a-la-ley-1257-de-2008?p_r_p_assetEntryId=139930",
+    monto: null,
+    requisitos: "Mujeres de todas las regiones",
     estado: "cerrada",
-    categoria: "Tecnología Emergente",
-    fuente: "Ministerio de Ciencia, Tecnología e Innovación",
+    categoria: "Representación mujeres",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Estamos buscando 13 formadora/es territoriales",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Escuela Sociedades del Cuidado del Sistema Nacional de Cuidado. Publicada 2025-09-12.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/estamos-buscando-13-formadora-es-territoriales?p_r_p_assetEntryId=137832",
+    monto: null,
+    requisitos: "Formadoras/es territoriales",
+    estado: "cerrada",
+    categoria: "Formación cuidado",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Buscamos Formadoras/es Territoriales",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Escuela Redes del Cuidado del Sistema Nacional de Cuidado. Publicada 2025-09-18.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/buscamos-formadores-territoriales?p_r_p_assetEntryId=137796",
+    monto: null,
+    requisitos: "Formadoras/es territoriales",
+    estado: "cerrada",
+    categoria: "Formación cuidado",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "CONPES del Derecho Humano a la Alimentación",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Talleres de participación para la construcción de la Política para la garantía progresiva del Derecho Humano a la Alimentación. Publicada 2025-08-14.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/conpes-del-derecho-humano-a-la-alimentaci%C3%B3n?p_r_p_assetEntryId=124579",
+    monto: null,
+    requisitos: "Participantes en talleres",
+    estado: "cerrada",
+    categoria: "Participación política pública",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "Mochila Atrapasueños 2025",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Impulsamos proyectos comunitarios, culturales y educativos que transforman la vida de niñas, niños y adolescentes en todo el país. Publicada 2025-07-01.",
+    fechaCierre: null,
+    enlace:
+      "https://www.minigualdadyequidad.gov.co/convocatorias/-/asset_publisher/ufow/content/mochila-atrapasue%C3%B1os?p_r_p_assetEntryId=111717",
+    monto: null,
+    requisitos: "Proyectos para niños y adolescentes",
+    estado: "cerrada",
+    categoria: "Proyectos infantiles",
+    fuente: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    titulo: "RED NACIONAL DE CASAS REFUGIO PARA MUJERES VÍCTIMAS DE VIOLENCIA",
+    entidad: "Ministerio de Igualdad y Equidad",
+    descripcion:
+      "Convocatoria para impulsar la puesta en marcha de la Red Nacional de Casas Refugio. Persona profesional con formación en ciencias sociales, humanas o de la salud. Publicada 2025-04-10.",
+    fechaCierre: null,
+    enlace: "https://www.minigualdadyequidad.gov.co/-/convocatoria-de-prueba",
+    monto: null,
+    requisitos: "Profesionales en ciencias sociales, humanas o salud",
+    estado: "cerrada",
+    categoria: "Casas refugio",
+    fuente: "Ministerio de Igualdad y Equidad",
   },
 ];
 

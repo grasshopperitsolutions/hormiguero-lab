@@ -567,28 +567,34 @@ async function startHarvest() {
       return;
     }
 
-    // 2) Single call: send combined markdown batch to Perplexity
-    const aiRes = await fetch(`${API_BASE}/api/ask-ai`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ markdownBatch }),
-    });
+    const AI_BATCH_SIZE = 5; // Process 5 markdowns per AI call
+    const allConvocatorias = [];
 
-    const aiData = await aiRes.json();
+    for (let i = 0; i < markdownBatch.length; i += AI_BATCH_SIZE) {
+      const aiBatch = markdownBatch.slice(i, i + AI_BATCH_SIZE);
 
-    if (!aiRes.ok) {
-      console.error("ask-ai error:", aiData);
-      emptyState.classList.remove("hidden");
-      return;
+      console.log(
+        `Processing AI batch ${Math.floor(i / AI_BATCH_SIZE) + 1}...`,
+      );
+
+      const aiRes = await fetch(`${API_BASE}/api/ask-ai`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdownBatch: aiBatch }),
+      });
+
+      const aiData = await aiRes.json();
+
+      if (aiData.success && aiData.convocatorias) {
+        allConvocatorias.push(...aiData.convocatorias);
+      }
+
+      // Small delay between AI calls
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    const convocatorias = Array.isArray(aiData.convocatorias)
-      ? aiData.convocatorias
-      : [];
-
-    if (convocatorias.length > 0) {
-      allConvocatorias = convocatorias;
-      currentConvocatorias = convocatorias;
+    if (allConvocatorias.length > 0) {
+      currentConvocatorias = allConvocatorias;
     } else {
       allConvocatorias = [];
       currentConvocatorias = [];

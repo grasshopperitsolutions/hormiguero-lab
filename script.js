@@ -591,20 +591,9 @@ async function startHarvest() {
         body: JSON.stringify({ markdownBatch: aiBatch }),
       });
 
-      let aiData = {};
+      let aiData = await aiRes.json();
 
-      try {
-        console.log("Attempting to parse AI response as JSON string...");
-        aiData = JSON.parse(aiRes);
-        console.log("Successfully parsed AI response from JSON string:", aiData);
-      } catch (error) {
-        console.log("Failed to parse as JSON string, attempting to parse response object...");
-        console.log("Error details:", error.message);
-        aiData = await aiRes.json();
-        console.log("Successfully parsed AI response from response object:", aiData);
-      }
-
-      if (aiData.success && aiData.convocatorias) {
+      if (aiData.convocatorias) {
         allConvocatorias.push(...aiData.convocatorias);
       }
 

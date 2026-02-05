@@ -531,7 +531,7 @@ async function startHarvest() {
   currentConvocatorias = [];
 
   try {
-    const BATCH_SIZE = 5; // keep low values to avoid timeouts (max 5)
+    const BATCH_SIZE = 4; // keep low values to avoid timeouts (max 5)
     const allResults = [];
 
     for (let i = 0; i < SOURCES.length; i += BATCH_SIZE) {
@@ -596,7 +596,6 @@ async function startHarvest() {
     if (allConvocatorias.length > 0) {
       currentConvocatorias = allConvocatorias;
     } else {
-      allConvocatorias = [];
       currentConvocatorias = [];
     }
 

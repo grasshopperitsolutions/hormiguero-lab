@@ -531,30 +531,35 @@ async function startHarvest() {
   currentConvocatorias = [];
 
   try {
-    const urls = SOURCES.map((s) => s.url);
+    const BATCH_SIZE = 5; // keep low values to avoid timeouts (max 5)
+    const allResults = [];
 
-    // 1) Single call: crawl all URLs via backend fan‑out
-    const crawlRes = await fetch(`${API_BASE}/api/crawl-single-url`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ urls }),
-    });
-    const crawlData = await crawlRes.json();
+    for (let i = 0; i < SOURCES.length; i += BATCH_SIZE) {
+      const batch = SOURCES.slice(i, i + BATCH_SIZE);
+      const urls = batch.map((s) => s.url);
 
-    if (!crawlRes.ok || !crawlData.success) {
-      console.error("crawl-single-url batch error:", crawlData);
-      emptyState.classList.remove("hidden");
-      return;
+      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}...`);
+
+      const crawlRes = await fetch(`${API_BASE}/api/crawl-batch-urls`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls }),
+      });
+
+      const crawlData = await crawlRes.json();
+
+      if (crawlData.success && crawlData.results) {
+        allResults.push(...crawlData.results);
+      }
+
+      // Small delay between batches
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    const results = Array.isArray(crawlData.results) ? crawlData.results : [];
-
-    const markdownBatch = results
-      .filter((r) => r.success && r.markdown && r.markdown.length > 100)
-      .map((r) => ({
-        url: r.url,
-        markdown: r.markdown,
-      }));
+    // Now send all results to Perplexity
+    const markdownBatch = allResults
+      .filter((r) => r.success && r.markdown)
+      .map((r) => ({ url: r.url, markdown: r.markdown }));
 
     if (markdownBatch.length === 0) {
       console.warn("No markdown content to send to AI");
@@ -746,7 +751,7 @@ function clearFilters() {
 
 // API endpoints
 const CRAWL_API_URL =
-  "https://hormiguero-lab-api-proxy.vercel.app/api/crawl-single-url";
+  "https://hormiguero-lab-api-proxy.vercel.app/api/crawl-batch-urls";
 const ASK_AI_API_URL = "https://hormiguero-lab-api-proxy.vercel.app/api/ask-ai";
 
 /**
@@ -810,7 +815,7 @@ async function fetchConvocatorias(urls) {
 }
 
 /**
- * Crawls a single URL using the crawl-single-url API.
+ * Crawls a single URL using the crawl-batch-urls API.
  *
  * @param {string} url - URL to crawl
  * @returns {Promise<Object>} - Crawl result with markdown content

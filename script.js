@@ -577,7 +577,6 @@ async function startHarvest() {
     }
 
     const AI_BATCH_SIZE = 5; // Process 5 markdowns per AI call
-    const allConvocatorias = [];
 
     for (let i = 0; i < markdownBatch.length; i += AI_BATCH_SIZE) {
       const aiBatch = markdownBatch.slice(i, i + AI_BATCH_SIZE);
@@ -592,7 +591,18 @@ async function startHarvest() {
         body: JSON.stringify({ markdownBatch: aiBatch }),
       });
 
-      const aiData = await aiRes.json();
+      let aiData = {};
+
+      try {
+        console.log("Attempting to parse AI response as JSON string...");
+        aiData = JSON.parse(aiRes);
+        console.log("Successfully parsed AI response from JSON string:", aiData);
+      } catch (error) {
+        console.log("Failed to parse as JSON string, attempting to parse response object...");
+        console.log("Error details:", error.message);
+        aiData = await aiRes.json();
+        console.log("Successfully parsed AI response from response object:", aiData);
+      }
 
       if (aiData.success && aiData.convocatorias) {
         allConvocatorias.push(...aiData.convocatorias);

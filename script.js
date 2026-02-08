@@ -636,6 +636,12 @@ async function startHarvest() {
 
     if (allConvocatorias.length > 0) {
       currentConvocatorias = allConvocatorias;
+      showToast(
+        "¡Sincronización exitosa!",
+        `Se encontraron ${allConvocatorias.length} convocatorias actualizadas`,
+        4000,
+        "success",
+      );
     } else {
       currentConvocatorias = [];
     }
@@ -645,6 +651,14 @@ async function startHarvest() {
   } catch (error) {
     console.error("Error in startHarvest:", error);
     emptyState.classList.remove("hidden");
+
+    // Error toast
+    showToast(
+      "Error de sincronización",
+      "No se pudo conectar con el servidor. Mostrando datos almacenados.",
+      6000,
+      "error",
+    );
   } finally {
     loading.classList.add("hidden");
     btn.disabled = false;
@@ -667,6 +681,12 @@ function renderResults(data) {
       emptyState.classList.add("hidden");
     } else {
       emptyState.classList.remove("hidden");
+
+      showToast(
+        "Sin resultados",
+        "Intenta ajustar los filtros o limpiarlos para ver más opciones",
+        5000,
+      );
     }
   }
 
@@ -782,24 +802,43 @@ function clearFilters() {
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
   const categoryFilter = document.getElementById("categoryFilter");
+  const fuenteFilter = document.getElementById("fuenteFilter");
 
   if (searchInput) searchInput.value = "";
   if (statusFilter) statusFilter.value = "todos";
   if (categoryFilter) categoryFilter.value = "todas";
+  if (fuenteFilter) fuenteFilter.value = "todas";
 
-  // Ejecutar la lógica de filtrado de script.js para actualizar la UI
-  if (typeof applyFilters === "function") {
-    applyFilters();
-  }
+  if (typeof applyFilters === "function") applyFilters();
+
+  // Add toast notification
+  showToast(
+    "Filtros limpiados",
+    "Mostrando todas las convocatorias disponibles",
+    3000,
+  );
 }
 
 // Toast notification function
-function showToast(title, message, duration = 7000) {
-  // Create toast element
+function showToast(title, message, duration = 7000, type = "info") {
+  const icons = {
+    success: "fa-check-circle",
+    error: "fa-exclamation-circle",
+    warning: "fa-exclamation-triangle",
+    info: "fa-envelope-open-text",
+  };
+
+  const colors = {
+    success: "#10b981",
+    error: "#ef4444",
+    warning: "#f59e0b",
+    info: "var(--earth-accent)",
+  };
+
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.innerHTML = `
-    <i class="fas fa-envelope-open-text toast-icon"></i>
+    <i class="fas ${icons[type]} toast-icon" style="color: ${colors[type]}"></i>
     <div class="toast-content">
       <div class="toast-title">${title}</div>
       <div class="toast-message">${message}</div>
@@ -808,18 +847,14 @@ function showToast(title, message, duration = 7000) {
   `;
 
   document.body.appendChild(toast);
-
-  // Show toast with animation
   setTimeout(() => toast.classList.add("show"), 10);
 
-  // Close button functionality
   const closeBtn = toast.querySelector(".toast-close");
   closeBtn.onclick = () => {
     toast.classList.remove("show");
     setTimeout(() => toast.remove(), 300);
   };
 
-  // Auto-remove after duration
   setTimeout(() => {
     toast.classList.remove("show");
     setTimeout(() => toast.remove(), 300);
@@ -848,5 +883,7 @@ function handleContactSubmit(event) {
   showToast(
     "Cliente de correo abierto",
     `Si no se abrió su aplicación de correo, envíe un email manualmente a: <strong>${emailTo}</strong>`,
+    7000,
+    "warning",
   );
 }

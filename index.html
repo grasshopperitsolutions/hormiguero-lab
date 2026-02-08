@@ -254,6 +254,62 @@
           opacity: 0;
         }
       }
+      /* Toast Notification Styles */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--earth-dark);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(45, 36, 30, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        max-width: 400px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        z-index: 9999;
+        border: 1px solid var(--earth-clay);
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast-icon {
+        font-size: 1.25rem;
+        color: var(--earth-accent);
+      }
+
+      .toast-content {
+        flex: 1;
+      }
+
+      .toast-title {
+        font-weight: bold;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .toast-message {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        line-height: 1.4;
+      }
+
+      .toast-close {
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+      }
+
+      .toast-close:hover {
+        opacity: 1;
+      }
     </style>
   </head>
   <body class="pt-24">
@@ -782,48 +838,103 @@
     </div>
 
     <!-- Section: Contacto -->
-    <section id="contacto" class="hidden-section max-w-4xl mx-auto px-4 py-16">
-      <div class="nest-chamber p-12 grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div class="space-y-6">
-          <h2 class="serif text-4xl font-bold">Hablemos de su idea</h2>
-          <p class="text-stone-500">
-            Nuestros expertos están listos para ayudarle a navegar por el
-            ecosistema de convocatorias.
-          </p>
+    <section id="contacto" class="hidden-section max-w-5xl mx-auto px-4 py-20">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        <div class="space-y-8">
           <div class="space-y-4">
-            <div class="flex items-center gap-4 text-sm text-stone-600">
-              <i class="fas fa-map-marker-alt text-earth-clay"></i> Bucaramanga,
-              Santander, Col.
+            <h2 class="serif text-5xl font-bold">Hablemos de su Idea</h2>
+            <p class="text-stone-500 italic">
+              Estamos listos para procesar su proyecto y llevarlo al siguiente
+              nivel.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div
+                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-location-dot text-earth-clay"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm">Ubicación</h4>
+                <p class="text-stone-500 text-sm">
+                  Hub de Innovación, Bucaramanga, Santander
+                </p>
+              </div>
             </div>
-            <div class="flex items-center gap-4 text-sm text-stone-600">
-              <i class="fas fa-envelope text-earth-clay"></i>
-              info@hormiguerolab.co
+            <div class="flex items-start gap-4">
+              <div
+                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-envelope text-earth-clay"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm">Email Directo</h4>
+                <p class="text-earth-clay font-bold">pimodani10@gmail.com</p>
+              </div>
             </div>
           </div>
         </div>
-        <form class="space-y-4">
-          <input
-            type="text"
-            placeholder="Nombre"
-            class="w-full bg-stone-50 border border-stone-200 p-3 rounded-lg text-sm outline-none focus:border-earth-clay"
-          />
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            class="w-full bg-stone-50 border border-stone-200 p-3 rounded-lg text-sm outline-none focus:border-earth-clay"
-          />
-          <textarea
-            placeholder="Cuéntenos sobre su proyecto"
-            rows="4"
-            class="w-full bg-stone-50 border border-stone-200 p-3 rounded-lg text-sm outline-none focus:border-earth-clay"
-          ></textarea>
-          <button
-            type="button"
-            class="btn-harvest w-full py-3 font-bold uppercase tracking-widest text-sm"
+
+        <div class="nest-chamber p-8 md:p-10 border-2 border-earth-clay/10">
+          <form
+            id="contactForm"
+            onsubmit="handleContactSubmit(event)"
+            class="space-y-4"
           >
-            Enviar Mensaje
-          </button>
-        </form>
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Su Nombre</label
+              >
+              <input
+                type="text"
+                id="formName"
+                required
+                placeholder="Ej: Juan Pérez"
+                class="filter-input w-full"
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Asunto del Proyecto</label
+              >
+              <input
+                type="text"
+                id="formSubject"
+                required
+                placeholder="Ej: Proyecto de Innovación Agrícola"
+                class="filter-input w-full"
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Su Mensaje</label
+              >
+              <textarea
+                id="formMessage"
+                required
+                rows="4"
+                placeholder="Describa brevemente su necesidad..."
+                class="filter-input w-full resize-none"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn-harvest w-full py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+            >
+              <i class="fas fa-paper-plane"></i> Enviar Propuesta
+            </button>
+            <p
+              class="text-[9px] text-center text-stone-400 uppercase tracking-widest mt-4"
+            >
+              Se abrirá su gestor de correo predeterminado
+            </p>
+          </form>
+        </div>
       </div>
     </section>
 

@@ -792,3 +792,61 @@ function clearFilters() {
     applyFilters();
   }
 }
+
+// Toast notification function
+function showToast(title, message, duration = 7000) {
+  // Create toast element
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerHTML = `
+    <i class="fas fa-envelope-open-text toast-icon"></i>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <i class="fas fa-times toast-close"></i>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Show toast with animation
+  setTimeout(() => toast.classList.add("show"), 10);
+
+  // Close button functionality
+  const closeBtn = toast.querySelector(".toast-close");
+  closeBtn.onclick = () => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  };
+
+  // Auto-remove after duration
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// Lógica de envío de formulario de contacto vía mailto
+function handleContactSubmit(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("formName").value;
+  const subject = document.getElementById("formSubject").value;
+  const message = document.getElementById("formMessage").value;
+  const emailTo = "pimodani10@gmail.com";
+  const emailSubject = encodeURIComponent(
+    `Hormiguero Lab Propuesta ${subject}`,
+  );
+  const emailBody = encodeURIComponent(
+    `Hola Hormiguero Lab,\n\nMi nombre es ${name}.\n\nMensaje:\n${message}\n\nAtentamente,\n${name}`,
+  );
+
+  // Trigger mailto
+  window.location.href = `mailto:${emailTo}?subject=${emailSubject}&body=${emailBody}`;
+
+  // Show toast notification as fallback
+  showToast(
+    "Cliente de correo abierto",
+    `Si no se abrió su aplicación de correo, envíe un email manualmente a: <strong>${emailTo}</strong>`,
+  );
+}

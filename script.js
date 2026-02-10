@@ -463,14 +463,21 @@ function initializeSources() {
 
   // Mostrar fuentes en el footer con categorías
   if (footerList) {
-    Object.keys(categories).forEach((category) => {
+    // Ensure unique category keys
+    const uniqueCategories = [...new Set(Object.keys(categories))];
+
+    uniqueCategories.forEach((category) => {
       const categoryHeader = document.createElement("li");
       categoryHeader.className =
         "text-[10px] font-bold text-stone-400 uppercase tracking-wider mt-4 mb-2 border-t border-stone-800 pt-4";
       categoryHeader.innerText = category;
       footerList.appendChild(categoryHeader);
 
-      categories[category].forEach((s) => {
+      const uniqueSources = Array.from(
+        new Map(categories[category].map((s) => [s.name, s])).values(),
+      );
+
+      uniqueSources.forEach((s) => {
         const footerItem = document.createElement("li");
         footerItem.innerHTML = `<a href="${s.url}" target="_blank" class="hover:text-white transition-colors text-sm block py-1">${s.name}</a>`;
         footerList.appendChild(footerItem);
@@ -887,3 +894,38 @@ function handleContactSubmit(event) {
     "warning",
   );
 }
+
+// Lógica de Documentos Legales (Markdown)
+function openLegal(docType, title) {
+  const modal = document.getElementById("legalModal");
+  const contentDiv = document.getElementById("legalContent");
+  const titleDiv = document.getElementById("legalTitle");
+
+  titleDiv.innerText = title;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+
+  try {
+    const markdown = LEGAL_CONTENT[docType];
+    console.log(`Cargando documento legal: ${docType}`, markdown);
+    if (!markdown) throw new Error("Documento no encontrado");
+    contentDiv.innerHTML = marked.parse(markdown);
+  } catch (error) {
+    console.error("Error al cargar documento legal:", error);
+    contentDiv.innerHTML = `<div class="text-center py-10">
+      <i class="fas fa-exclamation-triangle text-amber-500 text-3xl"></i>
+      <p class="text-stone-600">Error al cargar el documento.</p>
+    </div>`;
+  }
+}
+
+function closeLegalModal() {
+  document.getElementById("legalModal").classList.add("hidden");
+  document.body.style.overflow = "auto";
+}
+
+// Cerrar modal al hacer click fuera
+window.onclick = function (event) {
+  const modal = document.getElementById("legalModal");
+  if (event.target == modal) closeLegalModal();
+};

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hormiguero Lab | Gestión Profesional de Proyectos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cargador de Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -254,6 +256,7 @@
           opacity: 0;
         }
       }
+
       /* Toast Notification Styles */
       .toast {
         position: fixed;
@@ -310,9 +313,68 @@
       .toast-close:hover {
         opacity: 1;
       }
+
+      /* Markdown Content Styling */
+      .markdown-content h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: var(--earth-dark);
+        border-bottom: 2px solid var(--earth-clay);
+        padding-bottom: 0.5rem;
+      }
+      .markdown-content h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .markdown-content p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        color: #4b5563;
+      }
+      .markdown-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .markdown-content li {
+        margin-bottom: 0.5rem;
+      }
+
+      /* Modal Blur Backdrop */
+      .legal-modal-backdrop {
+        background-color: rgba(45, 36, 30, 0.7);
+        backdrop-filter: blur(10px);
+      }
     </style>
   </head>
   <body class="pt-24">
+    <!-- <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyBj69XtiGckKNEcbPbm410ZfnpPnjegP2k",
+        authDomain: "hormiguero-lab.firebaseapp.com",
+        projectId: "hormiguero-lab",
+        storageBucket: "hormiguero-lab.firebasestorage.app",
+        messagingSenderId: "199938878441",
+        appId: "1:199938878441:web:506a5adda47c80f3bbf978",
+        measurementId: "G-WWPWPNDB9F",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script> -->
+
     <!-- Navegación -->
     <nav
       class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-stone-200"
@@ -707,6 +769,48 @@
       </div>
     </section>
 
+    <!-- MODAL LEGAL (Markdown) -->
+    <div
+      id="legalModal"
+      class="fixed inset-0 z-[100] hidden legal-modal-backdrop flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-[2rem] w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+      >
+        <div
+          class="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50"
+        >
+          <h3 id="legalTitle" class="serif text-2xl font-bold text-earth-clay">
+            Documento Legal
+          </h3>
+          <button
+            onclick="closeLegalModal()"
+            class="w-10 h-10 rounded-full hover:bg-stone-200 flex items-center justify-center transition-colors"
+          >
+            <i class="fas fa-times text-stone-400"></i>
+          </button>
+        </div>
+        <div
+          id="legalContent"
+          class="p-8 md:p-12 overflow-y-auto markdown-content"
+        >
+          <!-- El contenido Markdown se inyectará aquí -->
+          <div class="flex flex-col items-center py-10 space-y-4">
+            <i class="fas fa-spinner fa-spin text-earth-clay text-2xl"></i>
+            <p class="italic text-stone-400">Cargando términos...</p>
+          </div>
+        </div>
+        <div class="p-6 border-t border-stone-100 text-center bg-stone-50">
+          <button
+            onclick="closeLegalModal()"
+            class="btn-harvest px-10 py-2 text-xs font-bold uppercase tracking-widest"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal de Servicio -->
     <div
       id="serviceModal"
@@ -941,7 +1045,7 @@
     <!-- Footer -->
     <footer class="bg-stone-900 text-stone-400 mt-32 pt-20 pb-12">
       <div
-        class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 mb-16 border-b border-stone-800 pb-16"
+        class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-12 mb-16 border-b border-stone-800 pb-16"
       >
         <div class="space-y-6">
           <div class="flex items-center gap-3">
@@ -960,6 +1064,9 @@
           </p>
         </div>
 
+        <!-- empty div -->
+        <div></div>
+
         <div class="space-y-6">
           <h4
             class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500"
@@ -970,6 +1077,40 @@
             <li>Formulación de Proyectos</li>
             <li>Vigilancia Tecnológica</li>
             <li>Articulación de Ecosistemas</li>
+          </ul>
+        </div>
+
+        <div class="space-y-6">
+          <h4
+            class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500"
+          >
+            Legal
+          </h4>
+          <ul class="text-xs space-y-3">
+            <li>
+              <button
+                onclick="openLegal('terminos', 'Términos y Condiciones')"
+                class="hover:text-white transition-colors"
+              >
+                Términos y Condiciones
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="openLegal('privacidad', 'Política de Privacidad')"
+                class="hover:text-white transition-colors"
+              >
+                Política de Privacidad
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="showSection('contacto')"
+                class="hover:text-white transition-colors"
+              >
+                Tratamiento de Datos
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -1017,7 +1158,7 @@
         </div>
       </div>
     </footer>
-
+    <script src="legal-content.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

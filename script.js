@@ -1,12 +1,12 @@
 // keep the main one as the last for script to show the main website
 const SOURCES = [
-  // pages 1–120
-  ...Array.from({ length: 120 }, (_, i) => ({
-    id: "minciencias",
-    url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
-    name: "Minciencias",
-    category: "Ciencia y Tecnología",
-  })),
+  // // pages 1–120
+  // ...Array.from({ length: 120 }, (_, i) => ({
+  //   id: "minciencias",
+  //   url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
+  //   name: "Minciencias",
+  //   category: "Ciencia y Tecnología",
+  // })),
   {
     id: "minciencias",
     url: "https://minciencias.gov.co/convocatorias/todas",
@@ -31,6 +31,13 @@ const SOURCES = [
     name: "Ministerio de Igualdad y Equidad",
     category: "Vivienda y Social",
   },
+  // Cooperación y Emprendimiento
+  // // {
+  // //   id: "apc",
+  // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
+  // //   name: "APC Colombia",
+  // //   category: "Cooperación y Emprendimiento",
+  // // },
 
   // {
   //   id: "atenea",
@@ -71,13 +78,6 @@ const SOURCES = [
   //   category: "Educación y Becas",
   // },
 
-  // // Cooperación y Emprendimiento
-  // // // {
-  // // //   id: "apc",
-  // // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
-  // // //   name: "APC Colombia",
-  // // //   category: "Cooperación y Emprendimiento",
-  // // // },
   // {
   //   id: "cidei",
   //   url: "https://cidei.net/convocatorias-para-proyectos-idi/",

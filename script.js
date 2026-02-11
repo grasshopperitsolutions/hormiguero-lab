@@ -1,18 +1,37 @@
+// keep the main one as the last for script to show the main website
 const SOURCES = [
-  // Ciencia y Tecnología
-  // // // // {
-  // // // //   id: "minciencias",
-  // // // //   url: "https://minciencias.gov.co/convocatorias/todas",
-  // // // //   name: "Minciencias",
-  // // // //   category: "Ciencia y Tecnología",
-  // // // // },
-  // // // // // pages 1–120
-  // // // // ...Array.from({ length: 120 }, (_, i) => ({
-  // // // //   id: "minciencias",
-  // // // //   url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
-  // // // //   name: "Minciencias",
-  // // // //   category: "Ciencia y Tecnología",
-  // // // // })),
+  // pages 1–120
+  ...Array.from({ length: 120 }, (_, i) => ({
+    id: "minciencias",
+    url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
+    name: "Minciencias",
+    category: "Ciencia y Tecnología",
+  })),
+  {
+    id: "minciencias",
+    url: "https://minciencias.gov.co/convocatorias/todas",
+    name: "Minciencias",
+    category: "Ciencia y Tecnología",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+    name: "Ministerio de Igualdad y Equidad",
+    category: "Vivienda y Social",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+    name: "Ministerio de Igualdad y Equidad",
+    category: "Vivienda y Social",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias",
+    name: "Ministerio de Igualdad y Equidad",
+    category: "Vivienda y Social",
+  },
+
   // {
   //   id: "atenea",
   //   url: "https://agenciaatenea.gov.co/convocatorias",
@@ -92,82 +111,6 @@ const SOURCES = [
   //   url: "https://www.minvivienda.gov.co/sala-de-prensa",
   //   name: "MinVivienda",
   //   category: "Vivienda y Social",
-  // },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-
-  // // Gobiernos Locales
-  // {
-  //   id: "bogota",
-  //   url: "https://bogota.gov.co/mi-ciudad/desarrollo-economico",
-  //   name: "Bogotá",
-  //   category: "Gobiernos Locales",
-  // },
-  // {
-  //   id: "medellin",
-  //   url: "https://www.medellin.gov.co",
-  //   name: "Medellín",
-  //   category: "Gobiernos Locales",
-  // },
-  // {
-  //   id: "cali",
-  //   url: "https://intranet.cali.gov.co/convocatorias-internas-2025/",
-  //   name: "Cali",
-  //   category: "Gobiernos Locales",
-  // },
-  // {
-  //   id: "cartagena",
-  //   url: "https://www.cartagena.gov.co/Transparencia/Convocatorias",
-  //   name: "Cartagena",
-  //   category: "Gobiernos Locales",
-  // },
-  // {
-  //   id: "antioquia",
-  //   url: "https://www.antioquiatic.edu.co",
-  //   name: "Antioquia",
-  //   category: "Gobiernos Locales",
-  // },
-  // {
-  //   id: "magdalena",
-  //   url: "https://www.gobernaciondelmagdalena.gov.co/convocatorias/",
-  //   name: "Magdalena",
-  //   category: "Gobiernos Locales",
-  // },
-
-  // // Universidades
-  // {
-  //   id: "ude-medellin",
-  //   url: "https://investigacion.udemedellin.edu.co/apoyo-al-investigador/convocatorias/",
-  //   name: "U. de Medellín",
-  //   category: "Universidades",
-  // },
-  // {
-  //   id: "u-caldas",
-  //   url: "https://www.ucaldas.edu.co/portal/convocatorias/",
-  //   name: "U. de Caldas",
-  //   category: "Universidades",
-  // },
-  // {
-  //   id: "sector-universitario",
-  //   url: "https://www.universidad.edu.co/bolsa-de-empleo-en-el-sector-universitario/",
-  //   name: "Sector Universitario",
-  //   category: "Universidades",
   // },
 ];
 
@@ -423,65 +366,54 @@ const mockConvocatorias = [
   },
 ];
 
-// Función para inicializar las listas de fuentes de forma segura
 function initializeSources() {
-  const list = document.getElementById("sourceList");
   const footerList = document.getElementById("footerSourceList");
 
-  // Limpiar listas antes de poblar para evitar duplicados en re-render
-  if (list) list.innerHTML = "";
   if (footerList) footerList.innerHTML = "";
 
-  // Agrupar fuentes por categoría
+  // Filtrar entidades únicas basándose en el nombre
+  const uniqueEntities = Array.from(
+    new Map(SOURCES.map((s) => [s.name, s])).values(),
+  );
+
+  // Agrupar por categoría
   const categories = {};
-  SOURCES.forEach((s) => {
-    if (!categories[s.category]) {
-      categories[s.category] = [];
-    }
+  uniqueEntities.forEach((s) => {
+    if (!categories[s.category]) categories[s.category] = [];
     categories[s.category].push(s);
   });
 
-  // Mostrar fuentes en el sidebar con categorías
-  if (list) {
-    Object.keys(categories).forEach((category) => {
-      const categoryHeader = document.createElement("div");
-      categoryHeader.className =
-        "text-[8px] font-bold text-stone-400 uppercase tracking-wider mt-4 mb-2 border-t border-stone-200 pt-4";
-      categoryHeader.innerText = category;
-      list.appendChild(categoryHeader);
-
-      categories[category].forEach((s) => {
-        const tag = document.createElement("span");
-        tag.className =
-          "bg-stone-100 border border-stone-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-stone-500 uppercase tracking-tighter hover:bg-stone-200 transition-colors cursor-pointer";
-        tag.innerText = s.name;
-        tag.title = `${s.name} - ${s.category}`;
-        list.appendChild(tag);
-      });
-    });
-  }
-
-  // Mostrar fuentes en el footer con categorías
+  // Renderizar en Footer (Simple & Elegante)
   if (footerList) {
-    // Ensure unique category keys
-    const uniqueCategories = [...new Set(Object.keys(categories))];
+    Object.keys(categories).forEach((cat) => {
+      const col = document.createElement("div");
+      col.className = "space-y-4";
 
-    uniqueCategories.forEach((category) => {
-      const categoryHeader = document.createElement("li");
-      categoryHeader.className =
-        "text-[10px] font-bold text-stone-400 uppercase tracking-wider mt-4 mb-2 border-t border-stone-800 pt-4";
-      categoryHeader.innerText = category;
-      footerList.appendChild(categoryHeader);
+      // Título de Categoría
+      const title = document.createElement("h5");
+      title.className =
+        "text-[9px] font-black text-white uppercase tracking-wider border-l-2 border-earth-clay pl-3 mb-4";
+      title.innerText = cat;
+      col.appendChild(title);
 
-      const uniqueSources = Array.from(
-        new Map(categories[category].map((s) => [s.name, s])).values(),
-      );
+      // Lista de enlaces
+      const ul = document.createElement("ul");
+      ul.className = "space-y-2 pl-3";
 
-      uniqueSources.forEach((s) => {
-        const footerItem = document.createElement("li");
-        footerItem.innerHTML = `<a href="${s.url}" target="_blank" class="hover:text-white transition-colors text-sm block py-1">${s.name}</a>`;
-        footerList.appendChild(footerItem);
+      categories[cat].forEach((s) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = s.url;
+        a.target = "_blank";
+        a.className =
+          "text-[10px] text-stone-500 hover:text-white transition-colors block leading-tight py-1";
+        a.innerText = s.name;
+        li.appendChild(a);
+        ul.appendChild(li);
       });
+
+      col.appendChild(ul);
+      footerList.appendChild(col);
     });
   }
 }

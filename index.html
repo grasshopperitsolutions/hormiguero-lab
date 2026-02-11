@@ -351,30 +351,6 @@
     </style>
   </head>
   <body class="pt-24">
-    <!-- <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyBj69XtiGckKNEcbPbm410ZfnpPnjegP2k",
-        authDomain: "hormiguero-lab.firebaseapp.com",
-        projectId: "hormiguero-lab",
-        storageBucket: "hormiguero-lab.firebasestorage.app",
-        messagingSenderId: "199938878441",
-        appId: "1:199938878441:web:506a5adda47c80f3bbf978",
-        measurementId: "G-WWPWPNDB9F",
-      };
-
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-    </script> -->
-
     <!-- Navegación -->
     <nav
       class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-stone-200"
@@ -1103,14 +1079,6 @@
                 Política de Privacidad
               </button>
             </li>
-            <li>
-              <button
-                onclick="showSection('contacto')"
-                class="hover:text-white transition-colors"
-              >
-                Tratamiento de Datos
-              </button>
-            </li>
           </ul>
         </div>
 
@@ -1135,16 +1103,31 @@
         </div>
       </div>
 
+      <!-- SECCIÓN DE FUENTES (REDISEÑADA) -->
+      <div class="max-w-7xl mx-auto px-6 mb-12">
+        <h4
+          class="text-[8px] font-bold uppercase tracking-[0.3em] text-stone-600 text-center mb-6"
+        >
+          Fuentes de Información Procesadas
+        </h4>
+        <div
+          id="footerSourceList"
+          class="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[10px] font-bold uppercase tracking-widest"
+        >
+          <!-- Fuentes inyectadas dinámicamente -->
+        </div>
+      </div>
+
       <div
         class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6"
       >
         <p class="text-[10px] uppercase font-bold tracking-widest">
           &copy; 2025 Hormiguero Lab. Santander, Colombia.
         </p>
-        <div
+        <!-- <div
           id="footerSourceList"
           class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[10px] font-bold uppercase tracking-widest"
-        ></div>
+        ></div> -->
         <div
           class="flex items-center gap-4 text-[10px] uppercase font-bold tracking-widest"
         >

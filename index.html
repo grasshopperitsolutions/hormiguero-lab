@@ -193,27 +193,14 @@
         box-shadow: 0 0 0 3px rgba(140, 94, 69, 0.1);
       }
 
-      /* Perfil Daniel Styles */
-      .profile-image-container {
-        position: relative;
-        display: inline-block;
+      /* Estilos para el Manifiesto */
+      .manifesto-text {
+        line-height: 1.8;
+        color: var(--earth-dark);
       }
-      .profile-image-container::before {
-        content: "";
-        position: absolute;
-        inset: -8px;
-        border: 2px dashed var(--earth-clay);
-        border-radius: 50%;
-        animation: spin 20s linear infinite;
-        opacity: 0.3;
-      }
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
+      .manifesto-title {
+        letter-spacing: 0.2em;
+        color: var(--earth-clay);
       }
 
       /* Modal Styles */
@@ -395,6 +382,13 @@
           class="btn-harvest px-6 py-2.5 text-xs font-bold uppercase tracking-widest flex items-center gap-2 hidden"
         >
           <i class="fas fa-sync-alt"></i> Sincronizar
+        </button>
+
+        <button
+          onclick="openAuthModal('login')"
+          class="btn-harvest px-6 py-2.5 text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+        >
+          <i class="fas fa-user"></i> Acceder
         </button>
       </div>
     </nav>
@@ -644,6 +638,105 @@
       </div>
     </section>
 
+    <!-- Section: Contacto -->
+    <section id="contacto" class="hidden-section max-w-5xl mx-auto px-4 py-20">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        <div class="space-y-8">
+          <div class="space-y-4">
+            <h2 class="serif text-5xl font-bold">Hablanos de tu proyecto</h2>
+            <p class="text-stone-500 italic">
+              Organizamos ideas, conectamos oportunidades y acompañamos
+              proyectos.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div
+                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-location-dot text-earth-clay"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm">Ubicación</h4>
+                <p class="text-stone-500 text-sm">Santander, Colombia</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div
+                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-envelope text-earth-clay"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm">Contacto</h4>
+                <p class="text-earth-clay font-bold">pimodani10@gmail.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nest-chamber p-8 md:p-10 border-2 border-earth-clay/10">
+          <form
+            id="contactForm"
+            onsubmit="handleContactSubmit(event)"
+            class="space-y-4"
+          >
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Su Nombre</label
+              >
+              <input
+                type="text"
+                id="formName"
+                required
+                placeholder="Ej: Juan Pérez"
+                class="filter-input w-full"
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Asunto del Proyecto</label
+              >
+              <input
+                type="text"
+                id="formSubject"
+                required
+                placeholder="Ej: Proyecto de Innovación Agrícola"
+                class="filter-input w-full"
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
+                >Su Mensaje</label
+              >
+              <textarea
+                id="formMessage"
+                required
+                rows="4"
+                placeholder="Describa brevemente su necesidad..."
+                class="filter-input w-full resize-none"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn-harvest w-full py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+            >
+              <i class="fas fa-paper-plane"></i> Enviar Propuesta
+            </button>
+            <p
+              class="text-[9px] text-center text-stone-400 uppercase tracking-widest mt-4"
+            >
+              Se abrirá su gestor de correo predeterminado
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <!-- MODAL LEGAL (Markdown) -->
     <div
       id="legalModal"
@@ -816,104 +909,184 @@
       </div>
     </div>
 
-    <!-- Section: Contacto -->
-    <section id="contacto" class="hidden-section max-w-5xl mx-auto px-4 py-20">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-        <div class="space-y-8">
-          <div class="space-y-4">
-            <h2 class="serif text-5xl font-bold">Hablanos de tu proyecto</h2>
-            <p class="text-stone-500 italic">
-              Organizamos ideas, conectamos oportunidades y acompañamos
-              proyectos.
+    <!-- MODAL DE AUTENTICACIÓN -->
+    <div
+      id="authModal"
+      class="fixed inset-0 z-[100] hidden legal-modal-backdrop flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden flex flex-col shadow-2xl relative"
+      >
+        <button
+          onclick="closeAuthModal()"
+          class="absolute top-6 right-6 text-stone-400 hover:text-stone-600 z-10 transition-colors"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <div class="p-8 md:p-10">
+          <!-- VISTA LOG IN -->
+          <div id="auth-login" class="space-y-6">
+            <div class="text-center mb-8">
+              <i class="fas fa-mountain-sun text-earth-clay text-3xl mb-3"></i>
+              <h3 class="serif text-3xl font-bold text-stone-900">
+                Iniciar Sesión
+              </h3>
+              <p class="text-sm text-stone-500 mt-2">
+                Bienvenido de nuevo a Hormiguero Lab
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1"
+                  >Correo Electrónico</label
+                >
+                <input
+                  type="email"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="tucorreo@ejemplo.com"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label
+                    class="block text-[10px] font-bold uppercase tracking-widest text-stone-500"
+                    >Contraseña</label
+                  >
+                  <button
+                    onclick="switchAuthView('forgot')"
+                    class="text-[10px] font-bold text-earth-clay hover:text-earth-dark transition-colors"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                </div>
+                <input
+                  type="password"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="••••••••"
+                />
+              </div>
+              <button
+                class="btn-harvest w-full py-3.5 text-xs font-bold uppercase tracking-widest mt-4"
+              >
+                Ingresar
+              </button>
+            </div>
+            <p class="text-center text-xs text-stone-500 mt-6">
+              ¿No tienes una cuenta?
+              <button
+                onclick="switchAuthView('signup')"
+                class="font-bold text-stone-900 hover:text-earth-clay transition-colors"
+              >
+                Regístrate
+              </button>
             </p>
           </div>
 
-          <div class="space-y-6">
-            <div class="flex items-start gap-4">
-              <div
-                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
-                <i class="fas fa-location-dot text-earth-clay"></i>
+          <!-- VISTA SIGN UP -->
+          <div id="auth-signup" class="space-y-6 hidden">
+            <div class="text-center mb-8">
+              <i class="fas fa-seedling text-earth-clay text-3xl mb-3"></i>
+              <h3 class="serif text-3xl font-bold text-stone-900">
+                Crear Cuenta
+              </h3>
+              <p class="text-sm text-stone-500 mt-2">
+                Únete a nuestro ecosistema de proyectos
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1"
+                  >Nombre Completo</label
+                >
+                <input
+                  type="text"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="Tu nombre"
+                />
               </div>
               <div>
-                <h4 class="font-bold text-sm">Ubicación</h4>
-                <p class="text-stone-500 text-sm">Santander, Colombia</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4">
-              <div
-                class="w-12 h-12 bg-earth-clay/10 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
-                <i class="fas fa-envelope text-earth-clay"></i>
+                <label
+                  class="block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1"
+                  >Correo Electrónico</label
+                >
+                <input
+                  type="email"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="tucorreo@ejemplo.com"
+                />
               </div>
               <div>
-                <h4 class="font-bold text-sm">Contacto</h4>
-                <p class="text-earth-clay font-bold">pimodani10@gmail.com</p>
+                <label
+                  class="block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1"
+                  >Contraseña</label
+                >
+                <input
+                  type="password"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="Crea una contraseña segura"
+                />
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="nest-chamber p-8 md:p-10 border-2 border-earth-clay/10">
-          <form
-            id="contactForm"
-            onsubmit="handleContactSubmit(event)"
-            class="space-y-4"
-          >
-            <div class="space-y-2">
-              <label
-                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
-                >Su Nombre</label
+              <button
+                class="btn-harvest w-full py-3.5 text-xs font-bold uppercase tracking-widest mt-4"
               >
-              <input
-                type="text"
-                id="formName"
-                required
-                placeholder="Ej: Juan Pérez"
-                class="filter-input w-full"
-              />
+                Registrarse
+              </button>
             </div>
-            <div class="space-y-2">
-              <label
-                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
-                >Asunto del Proyecto</label
+            <p class="text-center text-xs text-stone-500 mt-6">
+              ¿Ya tienes una cuenta?
+              <button
+                onclick="switchAuthView('login')"
+                class="font-bold text-stone-900 hover:text-earth-clay transition-colors"
               >
-              <input
-                type="text"
-                id="formSubject"
-                required
-                placeholder="Ej: Proyecto de Innovación Agrícola"
-                class="filter-input w-full"
-              />
-            </div>
-            <div class="space-y-2">
-              <label
-                class="text-[10px] font-bold uppercase tracking-widest text-stone-400 ml-2"
-                >Su Mensaje</label
-              >
-              <textarea
-                id="formMessage"
-                required
-                rows="4"
-                placeholder="Describa brevemente su necesidad..."
-                class="filter-input w-full resize-none"
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              class="btn-harvest w-full py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3"
-            >
-              <i class="fas fa-paper-plane"></i> Enviar Propuesta
-            </button>
-            <p
-              class="text-[9px] text-center text-stone-400 uppercase tracking-widest mt-4"
-            >
-              Se abrirá su gestor de correo predeterminado
+                Inicia Sesión
+              </button>
             </p>
-          </form>
+          </div>
+
+          <!-- VISTA FORGOT PASSWORD -->
+          <div id="auth-forgot" class="space-y-6 hidden">
+            <div class="text-center mb-8">
+              <i class="fas fa-key text-earth-clay text-3xl mb-3"></i>
+              <h3 class="serif text-3xl font-bold text-stone-900">
+                Recuperar Acceso
+              </h3>
+              <p class="text-sm text-stone-500 mt-2">
+                Te enviaremos instrucciones a tu correo
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-1"
+                  >Correo Electrónico</label
+                >
+                <input
+                  type="email"
+                  class="filter-input w-full focus:border-earth-clay"
+                  placeholder="tucorreo@ejemplo.com"
+                />
+              </div>
+              <button
+                class="btn-harvest w-full py-3.5 text-xs font-bold uppercase tracking-widest mt-4"
+              >
+                Enviar Enlace
+              </button>
+            </div>
+            <p class="text-center text-xs text-stone-500 mt-6">
+              <button
+                onclick="switchAuthView('login')"
+                class="font-bold text-stone-900 hover:text-earth-clay transition-colors"
+              >
+                <i class="fas fa-arrow-left mr-1"></i> Volver a Iniciar Sesión
+              </button>
+            </p>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-stone-900 text-stone-400 mt-32 pt-20 pb-12">

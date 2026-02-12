@@ -727,12 +727,6 @@ function closeModal() {
   document.body.style.overflow = "auto";
 }
 
-// Cerrar modal al hacer clic fuera
-window.onclick = function (event) {
-  const modal = document.getElementById("serviceModal");
-  if (event.target == modal) closeModal();
-};
-
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeSources === "function") initializeSources();
 });
@@ -858,6 +852,32 @@ function closeLegalModal() {
 
 // Cerrar modal al hacer click fuera
 window.onclick = function (event) {
-  const modal = document.getElementById("legalModal");
-  if (event.target == modal) closeLegalModal();
+  const legalModal = document.getElementById("legalModal");
+  const authModal = document.getElementById("authModal");
+  const serviceModal = document.getElementById("serviceModal");
+  if (event.target == legalModal) closeLegalModal();
+  if (event.target == authModal) closeAuthModal();
+  if (event.target == serviceModal) closeModal();
 };
+
+// Funciones del Modal de Autenticación
+function openAuthModal(view = "login") {
+  document.getElementById("authModal").classList.remove("hidden");
+  switchAuthView(view);
+  document.body.style.overflow = "hidden";
+}
+
+function closeAuthModal() {
+  document.getElementById("authModal").classList.add("hidden");
+  document.body.style.overflow = "auto";
+}
+
+function switchAuthView(view) {
+  // Ocultar todas las vistas
+  document.getElementById("auth-login").classList.add("hidden");
+  document.getElementById("auth-signup").classList.add("hidden");
+  document.getElementById("auth-forgot").classList.add("hidden");
+
+  // Mostrar la vista seleccionada
+  document.getElementById("auth-" + view).classList.remove("hidden");
+}

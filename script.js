@@ -7,12 +7,12 @@ const SOURCES = [
   //   name: "Minciencias",
   //   category: "Ciencia y Tecnología",
   // })),
-  {
-    id: "minciencias",
-    url: "https://minciencias.gov.co/convocatorias/todas",
-    name: "Minciencias",
-    category: "Ciencia y Tecnología",
-  },
+  // {
+  //   id: "minciencias",
+  //   url: "https://minciencias.gov.co/convocatorias/todas",
+  //   name: "Minciencias",
+  //   category: "Ciencia y Tecnología",
+  // },
   {
     id: "minigualdad",
     url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
@@ -460,12 +460,23 @@ function initializeFilters() {
   });
 }
 
-window.onload = () => {
+window.onload = async () => {
   initializeSources();
-  // Set up unified data source with mock data initially
-  currentConvocatorias = mockConvocatorias;
+
+  // Try to load from Firebase first
+  const storedData = await loadStoredConvocatorias();
+
+  if (storedData.length > 0) {
+    console.log(`✅ Loaded ${storedData.length} convocatorias from Firebase`);
+    currentConvocatorias = storedData;
+  } else {
+    console.log("📦 No stored data, showing mock convocatorias");
+    currentConvocatorias = mockConvocatorias;
+  }
+
   // Initialize dynamic filters first
   initializeFilters();
+
   // Then render results
   renderResults(currentConvocatorias);
 };
@@ -508,11 +519,12 @@ async function startHarvest() {
   loading.classList.remove("hidden");
   resultsGrid.innerHTML = "";
   emptyState.classList.add("hidden");
+
   allConvocatorias = [];
   currentConvocatorias = [];
 
   try {
-    const BATCH_SIZE = 4; // keep low values to avoid timeouts (max 5)
+    const BATCH_SIZE = 4;
     const allResults = [];
 
     for (let i = 0; i < SOURCES.length; i += BATCH_SIZE) {
@@ -533,11 +545,9 @@ async function startHarvest() {
         allResults.push(...crawlData.results);
       }
 
-      // Small delay between batches
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    // Now send all results to Perplexity
     const markdownBatch = allResults
       .filter((r) => r.success && r.markdown)
       .map((r) => ({ url: r.url, markdown: r.markdown }));
@@ -548,7 +558,7 @@ async function startHarvest() {
       return;
     }
 
-    const AI_BATCH_SIZE = 5; // Process 5 markdowns per AI call
+    const AI_BATCH_SIZE = 5;
 
     for (let i = 0; i < markdownBatch.length; i += AI_BATCH_SIZE) {
       const aiBatch = markdownBatch.slice(i, i + AI_BATCH_SIZE);
@@ -569,7 +579,6 @@ async function startHarvest() {
         allConvocatorias.push(...aiData.convocatorias);
       }
 
-      // Small delay between AI calls
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
@@ -591,7 +600,6 @@ async function startHarvest() {
     console.error("Error in startHarvest:", error);
     emptyState.classList.remove("hidden");
 
-    // Error toast
     showToast(
       "Error de sincronización",
       "No se pudo conectar con el servidor. Mostrando datos almacenados.",
@@ -729,6 +737,7 @@ function closeModal() {
 
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeSources === "function") initializeSources();
+  checkSession();
 });
 
 function clearFilters() {
@@ -794,6 +803,53 @@ function showToast(title, message, duration = 7000, type = "info") {
   }, duration);
 }
 
+// --- LOGICA DE COOKIES & SESION (48h) ---
+function setCookie(name, value, hours) {
+  const d = new Date();
+  d.setTime(d.getTime() + hours * 60 * 60 * 1000);
+  let expires = "expires=" + d.toUTCString();
+  // Properly encode the value to handle special characters
+  document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+  console.log(`Cookie set: ${name}=${encodeURIComponent(value)}, expires in ${hours} hours`);
+}
+
+function getCookie(name) {
+  let nameEQ = name + "=";
+  let ca = document.cookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) {
+      const value = c.substring(nameEQ.length, c.length);
+      console.log(`Cookie retrieved: ${name}=${value}`);
+      return decodeURIComponent(value);
+    }
+  }
+  console.log(`Cookie not found: ${name}`);
+  return null;
+}
+
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  console.log(`Cookie deleted: ${name}`);
+}
+
+function checkSession() {
+  const user = getCookie("hormiguero_user");
+  const btn = document.getElementById("nav-auth-btn");
+  if (user && btn) {
+    // Sesión Activa
+    btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Salir (${user})`;
+    btn.onclick = handleLogout;
+    btn.classList.add("bg-earth-clay");
+  } else if (btn) {
+    // Sesión Inactiva
+    btn.innerHTML = `<i class="fas fa-user"></i> Acceder`;
+    btn.onclick = () => openAuthModal("login");
+    btn.classList.remove("bg-earth-clay");
+  }
+}
+
 // Lógica de envío de formulario de contacto vía mailto
 function handleContactSubmit(event) {
   event.preventDefault();
@@ -819,6 +875,47 @@ function handleContactSubmit(event) {
     7000,
     "warning",
   );
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  // Aquí iría la lógica real de backend. Simulamos éxito:
+  const email = e.target.querySelector('input[type="email"]').value;
+  const name = email.split("@")[0]; // Mock user name
+
+  // Guardar cookie por 48 horas
+  setCookie("hormiguero_user", name, 48);
+
+  alert("¡Bienvenido de nuevo!");
+  closeAuthModal();
+  checkSession();
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  // Recoger datos incluyendo WhatsApp
+  const name = document.getElementById("regName").value;
+  const phone = document.getElementById("regPhone").value;
+
+  // Guardar cookie por 48 horas
+  setCookie("hormiguero_user", name.split(" ")[0], 48);
+
+  alert(`¡Cuenta creada para ${name}! (WhatsApp: ${phone})`);
+  closeAuthModal();
+  checkSession();
+}
+
+function handleForgot(e) {
+  e.preventDefault();
+  alert("Se ha enviado un enlace de recuperación a tu correo.");
+  switchAuthView("login");
+}
+
+function handleLogout() {
+  if (confirm("¿Deseas cerrar sesión?")) {
+    deleteCookie("hormiguero_user");
+    checkSession();
+  }
 }
 
 // Lógica de Documentos Legales (Markdown)
@@ -880,4 +977,29 @@ function switchAuthView(view) {
 
   // Mostrar la vista seleccionada
   document.getElementById("auth-" + view).classList.remove("hidden");
+}
+
+// Add this new function to fetch from Firebase
+async function loadStoredConvocatorias() {
+  try {
+    const response = await fetch(`${API_BASE}/api/store-data?limit=25`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch stored data");
+    }
+
+    const result = await response.json();
+
+    if (result.success && result.data && result.data.length > 0) {
+      return result.data;
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Error loading stored convocatorias:", error);
+    return [];
+  }
 }

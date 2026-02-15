@@ -809,8 +809,11 @@ function setCookie(name, value, hours) {
   d.setTime(d.getTime() + hours * 60 * 60 * 1000);
   let expires = "expires=" + d.toUTCString();
   // Properly encode the value to handle special characters
-  document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-  console.log(`Cookie set: ${name}=${encodeURIComponent(value)}, expires in ${hours} hours`);
+  document.cookie =
+    name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+  console.log(
+    `Cookie set: ${name}=${encodeURIComponent(value)}, expires in ${hours} hours`,
+  );
 }
 
 function getCookie(name) {
@@ -839,7 +842,7 @@ function checkSession() {
   const btn = document.getElementById("nav-auth-btn");
   if (user && btn) {
     // Sesión Activa
-    btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Salir (${user})`;
+    btn.innerHTML = `${user} <i class="fas fa-sign-out-alt"></i>`;
     btn.onclick = handleLogout;
     btn.classList.add("bg-earth-clay");
   } else if (btn) {

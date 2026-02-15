@@ -503,8 +503,6 @@ function showSection(id) {
   window.scrollTo(0, 0);
 }
 
-const API_BASE = "https://hormiguero-lab-api-proxy.vercel.app";
-
 async function startHarvest() {
   showSection("convocatorias");
 
@@ -735,11 +733,6 @@ function closeModal() {
   document.body.style.overflow = "auto";
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (typeof initializeSources === "function") initializeSources();
-  checkSession();
-});
-
 function clearFilters() {
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
@@ -836,20 +829,221 @@ function deleteCookie(name) {
   document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   console.log(`Cookie deleted: ${name}`);
 }
+// ===================================
+// FIREBASE AUTHENTICATION LOGIC
+// ===================================
 
-function checkSession() {
-  const user = getCookie("hormiguero_user");
+const API_BASE = "https://hormiguero-lab-api-proxy.vercel.app";
+
+// Global user state
+let currentUser = null;
+
+// Check auth state on page load
+window.addEventListener("DOMContentLoaded", () => {
+  if (typeof initializeSources === "function") initializeSources();
+
+  if (typeof window.firebaseAuthState === "function") {
+    window.firebaseAuthState(window.firebaseAuth, async (user) => {
+      if (user) {
+        // User is signed in
+        const token = await user.getIdToken();
+
+        // Verify and get full user data from backend
+        try {
+          const response = await fetch(`${API_BASE}/api/auth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "verify-token",
+              token: token,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            currentUser = data.user;
+            updateUIForLoggedInUser(currentUser);
+            console.log("✅ Usuario autenticado:", currentUser.email);
+          }
+        } catch (error) {
+          console.error("Error verificando token:", error);
+        }
+      } else {
+        // User is signed out
+        currentUser = null;
+        updateUIForLoggedOutUser();
+      }
+    });
+  }
+});
+
+// Update UI for logged in user
+function updateUIForLoggedInUser(user) {
   const btn = document.getElementById("nav-auth-btn");
-  if (user && btn) {
-    // Sesión Activa
-    btn.innerHTML = `${user} <i class="fas fa-sign-out-alt"></i>`;
+  if (btn) {
+    const firstName = user.name
+      ? user.name.split(" ")[0]
+      : user.email.split("@")[0];
+    btn.innerHTML = `${firstName} <i class="fas fa-sign-out-alt"></i>`;
     btn.onclick = handleLogout;
     btn.classList.add("bg-earth-clay");
-  } else if (btn) {
-    // Sesión Inactiva
-    btn.innerHTML = `<i class="fas fa-user"></i> Acceder`;
+  }
+
+  showToast(
+    `¡Bienvenido, ${firstName}!`,
+    "", // `Tier: ${user.tier.toUpperCase()} | Solicitudes: ${user.requestCount}/${user.maxRequests}`,
+    4000,
+    "success",
+  );
+}
+
+// Update UI for logged out user
+function updateUIForLoggedOutUser() {
+  const btn = document.getElementById("nav-auth-btn");
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-user"></i> Acceder';
     btn.onclick = () => openAuthModal("login");
     btn.classList.remove("bg-earth-clay");
+  }
+}
+
+// ===== REGISTER =====
+async function handleRegister(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("regName").value;
+  const phone = document.getElementById("regPhone").value;
+  const email = e.target.querySelector('input[type="email"]').value;
+  const password = e.target.querySelector('input[type="password"]').value;
+
+  try {
+    // Call backend to create user
+    const response = await fetch(`${API_BASE}/api/auth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "register",
+        email,
+        password,
+        name,
+        phone,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al registrar usuario");
+    }
+
+    // Sign in with custom token
+    await window.firebaseSignInCustom(window.firebaseAuth, data.token);
+
+    closeAuthModal();
+
+    showToast(
+      "¡Cuenta creada exitosamente!",
+      `Bienvenido a Hormiguero Lab, ${name}`,
+      5000,
+      "success",
+    );
+
+    // Reset form
+    e.target.reset();
+  } catch (error) {
+    console.error("Error en registro:", error);
+    showToast("Error al crear cuenta", error.message, 6000, "error");
+  }
+}
+
+// ===== LOGIN =====
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const email = e.target.querySelector('input[type="email"]').value;
+  const password = e.target.querySelector('input[type="password"]').value;
+
+  try {
+    // Sign in with Firebase
+    await window.firebaseSignIn(window.firebaseAuth, email, password);
+
+    closeAuthModal();
+
+    // Auth state listener will handle UI update
+  } catch (error) {
+    console.error("Error en login:", error);
+
+    let errorMessage = "Credenciales incorrectas";
+    if (error.code === "auth/user-not-found") {
+      errorMessage = "Usuario no encontrado";
+    } else if (error.code === "auth/wrong-password") {
+      errorMessage = "Contraseña incorrecta";
+    } else if (error.code === "auth/too-many-requests") {
+      errorMessage = "Demasiados intentos. Intenta más tarde.";
+    }
+
+    showToast("Error al iniciar sesión", errorMessage, 6000, "error");
+  }
+}
+
+// ===== LOGOUT =====
+async function handleLogout() {
+  if (confirm("¿Deseas cerrar sesión?")) {
+    try {
+      await window.firebaseSignOut(window.firebaseAuth);
+
+      showToast("Sesión cerrada", "Hasta pronto", 3000, "info");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      showToast("Error", "No se pudo cerrar sesión", 4000, "error");
+    }
+  }
+}
+
+// ===== FORGOT PASSWORD =====
+async function handleForgot(e) {
+  e.preventDefault();
+
+  const email = e.target.querySelector('input[type="email"]').value;
+
+  try {
+    // Call backend to generate reset link
+    const response = await fetch(`${API_BASE}/api/auth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "send-password-reset",
+        email,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al enviar enlace");
+    }
+
+    showToast(
+      "¡Enlace enviado!",
+      "Revisa tu correo para restablecer tu contraseña",
+      7000,
+      "success",
+    );
+
+    switchAuthView("login");
+    e.target.reset();
+  } catch (error) {
+    console.error("Error al recuperar contraseña:", error);
+    showToast("Error", error.message, 6000, "error");
+  }
+}
+
+function checkSession() {
+  if (currentUser) {
+    handleLogout(); // User is logged in
+  } else {
+    openAuthModal("login"); // User is logged out
   }
 }
 
@@ -878,47 +1072,6 @@ function handleContactSubmit(event) {
     7000,
     "warning",
   );
-}
-
-function handleLogin(e) {
-  e.preventDefault();
-  // Aquí iría la lógica real de backend. Simulamos éxito:
-  const email = e.target.querySelector('input[type="email"]').value;
-  const name = email.split("@")[0]; // Mock user name
-
-  // Guardar cookie por 48 horas
-  setCookie("hormiguero_user", name, 48);
-
-  alert("¡Bienvenido de nuevo!");
-  closeAuthModal();
-  checkSession();
-}
-
-function handleRegister(e) {
-  e.preventDefault();
-  // Recoger datos incluyendo WhatsApp
-  const name = document.getElementById("regName").value;
-  const phone = document.getElementById("regPhone").value;
-
-  // Guardar cookie por 48 horas
-  setCookie("hormiguero_user", name.split(" ")[0], 48);
-
-  alert(`¡Cuenta creada para ${name}! (WhatsApp: ${phone})`);
-  closeAuthModal();
-  checkSession();
-}
-
-function handleForgot(e) {
-  e.preventDefault();
-  alert("Se ha enviado un enlace de recuperación a tu correo.");
-  switchAuthView("login");
-}
-
-function handleLogout() {
-  if (confirm("¿Deseas cerrar sesión?")) {
-    deleteCookie("hormiguero_user");
-    checkSession();
-  }
 }
 
 // Lógica de Documentos Legales (Markdown)
@@ -984,11 +1137,16 @@ function switchAuthView(view) {
 
 // Add this new function to fetch from Firebase
 async function loadStoredConvocatorias() {
+  const limit = 25;
+  const estado = "";
   try {
-    const response = await fetch(`${API_BASE}/api/store-data?limit=25`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = await fetch(
+      `${API_BASE}/api/store-data?limit=${limit}&estado=${estado}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
 
     if (!response.ok) {
       throw new Error("Failed to fetch stored data");

@@ -1329,6 +1329,44 @@
         </div>
       </div>
     </footer>
+    <!-- Firebase SDK -->
+    <script type="module">
+      // Import Firebase modules
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signInWithCustomToken,
+        sendPasswordResetEmail,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+      // Your Firebase config (get from Firebase Console)
+      const firebaseConfig = {
+        apiKey: "AIzaSyBj69XtiGckKNEcbPbm410ZfnpPnjegP2k",
+        authDomain: "hormiguero-lab.firebaseapp.com",
+        projectId: "hormiguero-lab",
+        storageBucket: "hormiguero-lab.firebasestorage.app",
+        messagingSenderId: "199938878441",
+        appId: "1:199938878441:web:506a5adda47c80f3bbf978",
+        measurementId: "G-WWPWPNDB9F",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // Make auth available globally
+      window.firebaseAuth = auth;
+      window.firebaseSignIn = signInWithEmailAndPassword;
+      window.firebaseSignInCustom = signInWithCustomToken;
+      window.firebaseSendReset = sendPasswordResetEmail;
+      window.firebaseSignOut = signOut;
+      window.firebaseAuthState = onAuthStateChanged;
+
+      console.log("✅ Firebase initialized");
+    </script>
     <script src="legal-content/legal-content.js"></script>
     <script src="script.js"></script>
   </body>

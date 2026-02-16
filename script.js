@@ -604,7 +604,7 @@ async function startHarvest() {
     console.log("📊 Sources breakdown:", sourceBreakdown);
 
     // STEP 3: Process AI in batches
-    const AI_BATCH_SIZE = 3;
+    const AI_BATCH_SIZE = 1;
     const totalAIBatches = Math.ceil(markdownBatch.length / AI_BATCH_SIZE);
 
     console.log(`🤖 Will process ${totalAIBatches} AI batches`);

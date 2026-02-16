@@ -539,15 +539,21 @@ async function startHarvest() {
   allConvocatorias = [];
   currentConvocatorias = [];
 
+  console.log("🚀 Starting harvest process...");
+  console.log(`📊 Processing ${SOURCES.length} sources`);
+
   try {
     const CRAWL_BATCH_SIZE = 4;
     const allResults = [];
 
+    // STEP 1: Crawl URLs in batches
     for (let i = 0; i < SOURCES.length; i += CRAWL_BATCH_SIZE) {
       const batch = SOURCES.slice(i, i + CRAWL_BATCH_SIZE);
       const urls = batch.map((s) => s.url);
 
-      console.log(`Processing batch ${Math.floor(i / CRAWL_BATCH_SIZE) + 1}...`);
+      console.log(
+        `🕷️ Crawl Batch ${Math.floor(i / CRAWL_BATCH_SIZE) + 1}/${Math.ceil(SOURCES.length / CRAWL_BATCH_SIZE)}: ${urls.length} URLs`,
+      );
 
       const crawlRes = await fetch(`${API_BASE}/api/crawl-batch-urls`, {
         method: "POST",
@@ -558,29 +564,61 @@ async function startHarvest() {
       const crawlData = await crawlRes.json();
 
       if (crawlData.success && crawlData.results) {
+        const successCount = crawlData.results.filter((r) => r.success).length;
+        console.log(
+          `✅ Crawled ${successCount}/${crawlData.results.length} URLs successfully`,
+        );
         allResults.push(...crawlData.results);
+      } else {
+        console.error("❌ Crawl batch failed:", crawlData);
       }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
+    console.log(`📄 Total crawl results: ${allResults.length}`);
+
+    // STEP 2: Filter successful markdown results
     const markdownBatch = allResults
       .filter((r) => r.success && r.markdown)
       .map((r) => ({ url: r.url, markdown: r.markdown }));
 
+    console.log(
+      `📝 Valid markdown content: ${markdownBatch.length}/${allResults.length}`,
+    );
+
     if (markdownBatch.length === 0) {
-      console.warn("No markdown content to send to AI");
+      console.warn("⚠️ No markdown content to send to AI");
       emptyState.classList.remove("hidden");
       return;
     }
 
+    // Group by source for logging
+    const sourceBreakdown = {};
+    markdownBatch.forEach((m) => {
+      const source = SOURCES.find((s) => s.url === m.url);
+      if (source) {
+        sourceBreakdown[source.name] = (sourceBreakdown[source.name] || 0) + 1;
+      }
+    });
+    console.log("📊 Sources breakdown:", sourceBreakdown);
+
+    // STEP 3: Process AI in batches
     const AI_BATCH_SIZE = 3;
+    const totalAIBatches = Math.ceil(markdownBatch.length / AI_BATCH_SIZE);
+
+    console.log(`🤖 Will process ${totalAIBatches} AI batches`);
 
     for (let i = 0; i < markdownBatch.length; i += AI_BATCH_SIZE) {
       const aiBatch = markdownBatch.slice(i, i + AI_BATCH_SIZE);
+      const batchNum = Math.floor(i / AI_BATCH_SIZE) + 1;
 
       console.log(
-        `Processing AI batch ${Math.floor(i / AI_BATCH_SIZE) + 1}...`,
+        `🤖 AI Batch ${batchNum}/${totalAIBatches}: Processing ${aiBatch.length} sources`,
+      );
+      console.log(
+        `📄 URLs in this batch:`,
+        aiBatch.map((a) => a.url),
       );
 
       const aiRes = await fetch(`${API_BASE}/api/ask-ai`, {
@@ -589,36 +627,66 @@ async function startHarvest() {
         body: JSON.stringify({ markdownBatch: aiBatch }),
       });
 
+      if (!aiRes.ok) {
+        console.error(
+          `❌ AI Batch ${batchNum} failed with status ${aiRes.status}`,
+        );
+        continue;
+      }
+
       let aiData = await aiRes.json();
 
-      if (aiData.convocatorias) {
+      if (aiData.convocatorias && Array.isArray(aiData.convocatorias)) {
+        console.log(
+          `✅ AI Batch ${batchNum} extracted: ${aiData.convocatorias.length} convocatorias`,
+        );
+
+        // Log which sources returned results
+        const batchSources = {};
+        aiData.convocatorias.forEach((conv) => {
+          batchSources[conv.fuente] = (batchSources[conv.fuente] || 0) + 1;
+        });
+        console.log(`📊 Batch ${batchNum} breakdown by source:`, batchSources);
+
         allConvocatorias.push(...aiData.convocatorias);
+      } else {
+        console.warn(`⚠️ AI Batch ${batchNum} returned no convocatorias`);
       }
 
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
+    console.log(`🎉 TOTAL EXTRACTED: ${allConvocatorias.length} convocatorias`);
+
+    // Log final breakdown by source
+    const finalBreakdown = {};
+    allConvocatorias.forEach((conv) => {
+      finalBreakdown[conv.fuente] = (finalBreakdown[conv.fuente] || 0) + 1;
+    });
+    console.log("📊 FINAL breakdown by source:", finalBreakdown);
+
     if (allConvocatorias.length > 0) {
       currentConvocatorias = allConvocatorias;
       showToast(
         "¡Sincronización exitosa!",
-        `Se encontraron ${allConvocatorias.length} convocatorias actualizadas`,
-        4000,
+        `Se encontraron ${allConvocatorias.length} convocatorias. Revisa la consola para detalles.`,
+        6000,
         "success",
       );
     } else {
+      console.warn("⚠️ No convocatorias extracted from any source");
       currentConvocatorias = [];
     }
 
     renderResults(currentConvocatorias);
     initializeFilters();
   } catch (error) {
-    console.error("Error in startHarvest:", error);
+    console.error("❌ Error in startHarvest:", error);
     emptyState.classList.remove("hidden");
 
     showToast(
       "Error de sincronización",
-      "No se pudo conectar con el servidor. Mostrando datos almacenados.",
+      "No se pudo conectar con el servidor. Revisa la consola para más detalles.",
       6000,
       "error",
     );

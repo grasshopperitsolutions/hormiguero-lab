@@ -38,6 +38,19 @@ const SOURCES = [
   // //   name: "APC Colombia",
   // //   category: "Cooperación y Emprendimiento",
   // // },
+  // // pages 1–40
+  // ...Array.from({ length: 40 }, (_, i) => ({
+  //   id: "apc",
+  //   url: `https://portalservicios-apccolombia.gov.co/externo/Convocatoria?page=${i + 1}`,
+  //   name: "APC Colombia",
+  //   category: "Cooperación y Emprendimiento",
+  // })),
+  {
+    id: "apc",
+    url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
+    name: "APC Colombia",
+    category: "Cooperación y Emprendimiento",
+  },
 
   // {
   //   id: "atenea",
@@ -483,7 +496,7 @@ window.onload = async () => {
 
   // Then render results
   renderResults(currentConvocatorias);
-  clearFilters();
+  applyFilters();
 };
 
 function showSection(id) {
@@ -671,20 +684,33 @@ function renderResults(data) {
 
     card.innerHTML = `
                 <div class="md:w-1/4 space-y-4 border-r border-stone-100 pr-6 w-full">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 mb-2">
                         <span class="status-pill ${statusClass}">${item.estado || "abierta"}</span>
                         ${categoryBadge}
-                </div>
-                    <div class="space-y-1">
-                        <span class="text-[10px] font-black uppercase text-stone-300 block">Fuente</span>
-                        <span class="text-sm font-bold text-earth-clay">${item.fuente}</span>
+                    </div>
+                    <div class="flex items-center gap-2 border-b border-stone-50 pb-2">
+                        <span class="text-[10px] font-black uppercase text-stone-300">Fuente</span>
+                        <span class="text-xs font-bold text-earth-clay text-right">${item.fuente}</span>
+                    </div>
+                    <div class="pt-1 space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black uppercase text-stone-300">Monto</span>
+                            <span class="text-[11px] font-bold text-earth-accent text-right">${item.monto || "No espec."}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black uppercase text-stone-300">Cierre</span>
+                            <span class="text-[11px] font-semibold text-stone-600 text-right">${item.fechaCierre || "TBD"}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black uppercase text-stone-300">Publicado</span>
+                            <span class="text-[11px] font-semibold text-stone-600 text-right">${item.fechaPublicacion || "N/A"}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex-1 space-y-4">
                     <h3 class="serif text-3xl font-bold text-stone-900 leading-tight">${item.titulo}</h3>
                     <p class="text-stone-500 leading-relaxed text-sm">${item.descripcion || "Sin descripción detallada."}</p>
-                    <div class="pt-6 flex items-center justify-between">
-                        <span class="text-xs font-bold text-stone-400 serif italic">${item.fechaCierre || "TBD"}</span>
+                    <div class="pt-6 flex items-center justify-end border-t border-stone-50">
                         <a href="${item.enlace || "#"}" target="_blank" class="text-earth-dark font-bold text-sm flex items-center gap-2 hover:gap-4 transition-all">
                             VER DETALLES <i class="fas fa-arrow-right text-xs"></i>
                         </a>
@@ -802,7 +828,7 @@ function clearFilters() {
   const fuenteFilter = document.getElementById("fuenteFilter");
 
   if (searchInput) searchInput.value = "";
-  if (statusFilter) statusFilter.value = "abierta";
+  if (statusFilter) statusFilter.value = "todos";
   if (categoryFilter) categoryFilter.value = "todas";
   if (fuenteFilter) fuenteFilter.value = "todas";
 

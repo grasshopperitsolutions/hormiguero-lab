@@ -930,7 +930,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Update UI for logged in user
 function updateUIForLoggedInUser(user) {
-  console.log(user);
   const btn = document.getElementById("nav-auth-btn");
   if (btn) {
     const firstName = user.name
@@ -940,6 +939,7 @@ function updateUIForLoggedInUser(user) {
     btn.onclick = handleLogout;
     btn.classList.add("bg-earth-clay");
   }
+  renderResults(currentConvocatorias);
 
   showToast(
     `¡Bienvenido, ${firstName}!`,

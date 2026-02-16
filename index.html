@@ -227,6 +227,34 @@
         font-size: 0.8rem;
       }
 
+      .pagination-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        border: 1px solid var(--border-soft);
+        background: white;
+        color: var(--earth-dark);
+      }
+      .pagination-btn:hover:not(:disabled) {
+        border-color: var(--earth-clay);
+        color: var(--earth-clay);
+      }
+      .pagination-btn.active {
+        background: var(--earth-clay);
+        color: white;
+        border-color: var(--earth-clay);
+      }
+      .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .loader-ant {
         animation: walk 1.5s infinite linear;
       }
@@ -534,9 +562,9 @@
               class="filter-input flex-grow"
             >
               <option value="todos">Todos los estados</option>
-              <option value="abierta">Abierta</option>
-              <option value="proxima">Próxima</option>
-              <option value="vigente">Vigente</option>
+              <option value="abierta" selected>Abierta</option>
+              <!-- <option value="proxima">Próxima</option> -->
+              <!-- <option value="vigente">Vigente</option> -->
               <option value="cerrada">Cerrada</option>
             </select>
             <select
@@ -602,6 +630,45 @@
         </div>
 
         <div id="resultsGrid" class="grid grid-cols-1 gap-8"></div>
+
+        <!-- Bloque de Registro para ver más -->
+        <div
+          id="register-cta"
+          class="hidden mt-12 p-8 bg-earth-clay/5 border-2 border-dashed border-earth-clay/20 rounded-2xl text-center"
+        >
+          <i class="fas fa-lock text-earth-clay text-3xl mb-4"></i>
+          <h3 class="serif text-2xl font-bold text-stone-800 mb-2">
+            Descubre más de 500 oportunidades
+          </h3>
+          <p class="text-stone-600 mb-6 max-w-lg mx-auto text-sm">
+            Estás viendo una vista previa limitada. Regístrate gratis para
+            acceder al buscador completo, guardar tus favoritas y recibir
+            alertas personalizadas.
+          </p>
+          <button
+            onclick="openAuthModal('signup')"
+            class="btn-harvest px-8 py-3 text-xs font-bold uppercase tracking-widest"
+          >
+            Crear Cuenta Gratuita
+          </button>
+        </div>
+
+        <!-- Paginación -->
+        <div
+          id="pagination-controls"
+          class="hidden mt-12 flex justify-center items-center gap-2"
+        ></div>
+
+        <div
+          id="emptyState"
+          class="hidden flex flex-col items-center justify-center py-40 bg-stone-100/30 border-2 border-stone-200 rounded-[3rem]"
+        >
+          <p
+            class="text-stone-400 font-bold serif italic text-xl text-center px-4"
+          >
+            No se encontraron vetas con los filtros actuales.
+          </p>
+        </div>
       </div>
     </section>
 

@@ -7,12 +7,12 @@ const SOURCES = [
   //   name: "Minciencias",
   //   category: "Ciencia y Tecnología",
   // })),
-  // {
-  //   id: "minciencias",
-  //   url: "https://minciencias.gov.co/convocatorias/todas",
-  //   name: "Minciencias",
-  //   category: "Ciencia y Tecnología",
-  // },
+  {
+    id: "minciencias",
+    url: "https://minciencias.gov.co/convocatorias/todas",
+    name: "Minciencias",
+    category: "Ciencia y Tecnología",
+  },
   {
     id: "minigualdad",
     url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
@@ -114,9 +114,13 @@ const SOURCES = [
   // },
 ];
 
-// Unified data source for convocatorias
+// --- ESTADO GLOBAL ---
+let currentUser = null;
+let currentPage = 1;
+const ITEMS_PER_PAGE = 8;
 let allConvocatorias = [];
-let currentConvocatorias = []; // Active data source (mock or real)
+let currentConvocatorias = [];
+const API_BASE = "https://hormiguero-lab-api-proxy.vercel.app";
 
 // Mock convocatorias array to display until button is pressed
 const mockConvocatorias = [
@@ -612,30 +616,47 @@ async function startHarvest() {
 
 function renderResults(data) {
   const grid = document.getElementById("resultsGrid");
-  const countEl = document.getElementById("totalCount");
+  const count = document.getElementById("totalCount");
+  const ctaBlock = document.getElementById("register-cta");
+  const paginationBlock = document.getElementById("pagination-controls");
   const emptyState = document.getElementById("emptyState");
 
-  if (!grid || !countEl) return;
-
   grid.innerHTML = "";
-  countEl.innerText = data.length < 10 ? `0${data.length}` : data.length;
+  count.innerText = data.length.toString().padStart(2, "0");
 
-  // Hide empty state if there are results, show it if no results
-  if (emptyState) {
-    if (data.length > 0) {
-      emptyState.classList.add("hidden");
-    } else {
-      emptyState.classList.remove("hidden");
+  if (data.length === 0) {
+    emptyState.classList.remove("hidden");
+    ctaBlock.classList.add("hidden");
+    paginationBlock.classList.add("hidden");
 
-      showToast(
-        "Sin resultados",
-        "Intenta ajustar los filtros o limpiarlos para ver más opciones",
-        5000,
-      );
-    }
+    showToast(
+      "Sin resultados",
+      "Intenta ajustar los filtros o limpiarlos para ver más opciones",
+      5000,
+    );
+    return;
+  } else {
+    emptyState.classList.add("hidden");
   }
 
-  data.forEach((item) => {
+  let displayData = [];
+  if (!currentUser) {
+    displayData = data.slice(0, ITEMS_PER_PAGE);
+    ctaBlock.classList.remove("hidden");
+    paginationBlock.classList.add("hidden");
+  } else {
+    ctaBlock.classList.add("hidden");
+    const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = 1;
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    displayData = data.slice(start, start + ITEMS_PER_PAGE);
+
+    paginationBlock.classList.toggle("hidden", totalPages <= 1);
+    renderPaginationControls(totalPages);
+  }
+
+  displayData.forEach((item) => {
     const card = document.createElement("div");
     card.className =
       "nest-chamber p-10 flex flex-col md:flex-row gap-8 items-start";
@@ -652,7 +673,7 @@ function renderResults(data) {
                     <div class="flex items-center gap-2">
                         <span class="status-pill ${statusClass}">${item.estado || "abierta"}</span>
                         ${categoryBadge}
-                    </div>
+                </div>
                     <div class="space-y-1">
                         <span class="text-[10px] font-black uppercase text-stone-300 block">Fuente</span>
                         <span class="text-sm font-bold text-earth-clay">${item.fuente}</span>
@@ -671,6 +692,46 @@ function renderResults(data) {
             `;
     grid.appendChild(card);
   });
+}
+
+function renderPaginationControls(totalPages) {
+  const container = document.getElementById("pagination-controls");
+  container.innerHTML = "";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "pagination-btn";
+  prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    currentPage--;
+    applyFilters();
+  };
+  container.appendChild(prevBtn);
+
+  let start = Math.max(1, currentPage - 1);
+  let end = Math.min(totalPages, start + 2);
+  if (end - start < 2) start = Math.max(1, end - 2);
+
+  for (let i = start; i <= end; i++) {
+    const btn = document.createElement("button");
+    btn.className = `pagination-btn ${i === currentPage ? "active" : ""}`;
+    btn.innerText = i;
+    btn.onclick = () => {
+      currentPage = i;
+      applyFilters();
+    };
+    container.appendChild(btn);
+  }
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "pagination-btn";
+  nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => {
+    currentPage++;
+    applyFilters();
+  };
+  container.appendChild(nextBtn);
 }
 
 function applyFilters() {
@@ -740,7 +801,7 @@ function clearFilters() {
   const fuenteFilter = document.getElementById("fuenteFilter");
 
   if (searchInput) searchInput.value = "";
-  if (statusFilter) statusFilter.value = "todos";
+  if (statusFilter) statusFilter.value = "abierta";
   if (categoryFilter) categoryFilter.value = "todas";
   if (fuenteFilter) fuenteFilter.value = "todas";
 
@@ -796,47 +857,9 @@ function showToast(title, message, duration = 7000, type = "info") {
   }, duration);
 }
 
-// --- LOGICA DE COOKIES & SESION (48h) ---
-function setCookie(name, value, hours) {
-  const d = new Date();
-  d.setTime(d.getTime() + hours * 60 * 60 * 1000);
-  let expires = "expires=" + d.toUTCString();
-  // Properly encode the value to handle special characters
-  document.cookie =
-    name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-  console.log(
-    `Cookie set: ${name}=${encodeURIComponent(value)}, expires in ${hours} hours`,
-  );
-}
-
-function getCookie(name) {
-  let nameEQ = name + "=";
-  let ca = document.cookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == " ") c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) == 0) {
-      const value = c.substring(nameEQ.length, c.length);
-      console.log(`Cookie retrieved: ${name}=${value}`);
-      return decodeURIComponent(value);
-    }
-  }
-  console.log(`Cookie not found: ${name}`);
-  return null;
-}
-
-function deleteCookie(name) {
-  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  console.log(`Cookie deleted: ${name}`);
-}
 // ===================================
 // FIREBASE AUTHENTICATION LOGIC
 // ===================================
-
-const API_BASE = "https://hormiguero-lab-api-proxy.vercel.app";
-
-// Global user state
-let currentUser = null;
 
 // Check auth state on page load
 window.addEventListener("DOMContentLoaded", () => {
@@ -953,7 +976,7 @@ async function handleRegister(e) {
     e.target.reset();
   } catch (error) {
     console.error("Error en registro:", error);
-    showToast("Error al crear cuenta", error.message, 6000, "error");
+    showToast("Error al crear cuenta", error, 6000, "error");
   }
 }
 

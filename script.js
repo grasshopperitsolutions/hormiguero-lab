@@ -540,14 +540,14 @@ async function startHarvest() {
   currentConvocatorias = [];
 
   try {
-    const BATCH_SIZE = 4;
+    const CRAWL_BATCH_SIZE = 4;
     const allResults = [];
 
-    for (let i = 0; i < SOURCES.length; i += BATCH_SIZE) {
-      const batch = SOURCES.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < SOURCES.length; i += CRAWL_BATCH_SIZE) {
+      const batch = SOURCES.slice(i, i + CRAWL_BATCH_SIZE);
       const urls = batch.map((s) => s.url);
 
-      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}...`);
+      console.log(`Processing batch ${Math.floor(i / CRAWL_BATCH_SIZE) + 1}...`);
 
       const crawlRes = await fetch(`${API_BASE}/api/crawl-batch-urls`, {
         method: "POST",
@@ -574,7 +574,7 @@ async function startHarvest() {
       return;
     }
 
-    const AI_BATCH_SIZE = 5;
+    const AI_BATCH_SIZE = 3;
 
     for (let i = 0; i < markdownBatch.length; i += AI_BATCH_SIZE) {
       const aiBatch = markdownBatch.slice(i, i + AI_BATCH_SIZE);

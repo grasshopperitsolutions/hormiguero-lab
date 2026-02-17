@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="assets/hormiga-derecha.svg" type="image/svg+xml" />
     <title>Hormiguero Lab | Gestión Profesional de Proyectos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Cargador de Markdown -->
@@ -114,24 +115,6 @@
       .status-vigente {
         background: #e0f2fe;
         color: #0369a1;
-      }
-
-      .loader-ant {
-        animation: walk 1.5s infinite linear;
-      }
-
-      @keyframes walk {
-        0% {
-          transform: translateX(-20px) rotate(0deg);
-          opacity: 0;
-        }
-        50% {
-          opacity: 1;
-        }
-        100% {
-          transform: translateX(20px) rotate(5deg);
-          opacity: 0;
-        }
       }
 
       .logo-track {
@@ -374,9 +357,14 @@
         class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center"
       >
         <div
-          class="flex items-center gap-3 cursor-pointer"
+          class="flex items-center cursor-pointer"
           onclick="showSection('convocatorias')"
         >
+          <img
+            src="assets/hormiga-derecha.svg"
+            alt="Hormiga"
+            class="w-10 h-10"
+          />
           <i class="fas fa-mountain-sun text-earth-clay text-2xl"></i>
           <h1
             class="text-xl font-bold tracking-tight text-stone-900 leading-none"
@@ -479,25 +467,16 @@
               institucionales.
             </p>
 
-            <div class="py-6 border-y border-stone-200">
-              <p class="font-bold text-stone-900 mb-2">Nuestro Enfoque:</p>
-              <ul
-                class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-semibold uppercase tracking-wider text-earth-clay"
-              >
-                <li class="flex items-center gap-2">
-                  <i class="fas fa-check text-[10px]"></i> Rigor metodológico
-                </li>
-                <li class="flex items-center gap-2">
-                  <i class="fas fa-check text-[10px]"></i> Visión territorial
-                </li>
-                <li class="flex items-center gap-2">
-                  <i class="fas fa-check text-[10px]"></i> Colaboración
-                </li>
-                <li class="flex items-center gap-2">
-                  <i class="fas fa-check text-[10px]"></i> Resultados concretos
-                </li>
-              </ul>
-            </div>
+            <p>
+              Trabajamos con rigor metodológico, visión territorial y una
+              profunda comprensión del ecosistema regional y nacional.
+            </p>
+
+            <p>
+              Creemos en la colaboración entre sectores, en proyectos bien
+              estructurados y en procesos que convierten las oportunidades en
+              resultados concretos.
+            </p>
 
             <p>
               Acompañamos a las organizaciones en cada etapa, desde la
@@ -523,7 +502,11 @@
         <div class="flex flex-col md:flex-row justify-between items-end gap-6">
           <div class="space-y-4">
             <div class="flex items-center gap-3">
-              <i class="fas fa-seedling text-earth-clay text-2xl"></i>
+              <img
+                src="assets/hormiga-derecha.svg"
+                alt="Hormiga"
+                class="w-5 h-5"
+              />
               <span
                 class="text-sm font-bold uppercase tracking-[0.3em] text-stone-400"
                 >Inteligencia estratégica para acceder a financiamiento</span
@@ -1398,7 +1381,7 @@
     <!-- Firebase SDK -->
     <script type="module">
       // Import Firebase modules
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
         getAuth,
         signInWithEmailAndPassword,
@@ -1406,7 +1389,7 @@
         sendPasswordResetEmail,
         signOut,
         onAuthStateChanged,
-      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
       // Your Firebase config (get from Firebase Console)
       const firebaseConfig = {

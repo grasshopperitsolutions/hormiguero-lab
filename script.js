@@ -31,131 +31,264 @@ const CATEGORIES = [
 
 // keep the main one as the last for script to show the main website
 const SOURCES = [
-  // // pages 1–120
-  // ...Array.from({ length: 120 }, (_, i) => ({
-  //   id: "minciencias",
-  //   url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
-  //   name: "Minciencias",
-  //   category: "Ciencia y Tecnología",
-  // })),
-  {
-    id: "minciencias",
-    url: "https://minciencias.gov.co/convocatorias/todas",
-    name: "Minciencias",
-    category: "Ciencia y Tecnología",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias",
-    name: "Ministerio de Igualdad y Equidad",
-    category: "Vivienda y Social",
-  },
-  // Cooperación y Emprendimiento
-  // // {
-  // //   id: "apc",
-  // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
-  // //   name: "APC Colombia",
-  // //   category: "Cooperación y Emprendimiento",
-  // // },
-  // // pages 1–40
-  // ...Array.from({ length: 40 }, (_, i) => ({
-  //   id: "apc",
-  //   url: `https://portalservicios-apccolombia.gov.co/externo/Convocatoria?page=${i + 1}`,
-  //   name: "APC Colombia",
-  //   category: "Cooperación y Emprendimiento",
-  // })),
-  // // // // // {
-  // // // // //   id: "apc",
-  // // // // //   url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
-  // // // // //   name: "APC Colombia",
-  // // // // //   category: "Cooperación y Emprendimiento",
-  // // // // // },
-
   // {
-  //   id: "atenea",
-  //   url: "https://agenciaatenea.gov.co/convocatorias",
-  //   name: "ATENEA Bogotá",
-  //   category: "Ciencia y Tecnología",
+  //   id: "secop2",
+  //   url: "https://community.secop.gov.co/Public/App/AnnualPurchasingPlanManagementPublic/Index?currentLanguage=es-CO&Page=login&Country=CO&SkinName=CCE",
+  //   name: "SECOP II",
   // },
   // {
-  //   id: "parques-nacionales",
-  //   url: "https://www.parquesnacionales.gov.co/programa-de-estimulo-al-conocimiento/convocatorias-abiertas-categoria-investigacion/",
-  //   name: "Parques Nacionales",
-  //   category: "Ciencia y Tecnología",
+  //   id: "colombiacompra",
+  //   url: "https://www.colombiacompra.gov.co/",
+  //   name: "Colombia Compra Eficiente",
   // },
 
-  // // Educación y Becas
+  // // Ministerios y entidades nacionales
   // {
-  //   id: "icetex",
-  //   url: "https://web.icetex.gov.co/becas",
-  //   name: "ICETEX",
-  //   category: "Educación y Becas",
+  //   id: "vicepresidencia",
+  //   url: "https://www.vicepresidencia.gov.co/prensa/Paginas/convocatorias.aspx",
+  //   name: "Vicepresidencia - Convocatorias",
   // },
   // {
-  //   id: "sena",
-  //   url: "https://www.sena.edu.co/es-co/formacion/Paginas/Estudie-en-el-SENA.aspx",
-  //   name: "SENA",
-  //   category: "Educación y Becas",
+  //   id: "minjusticia",
+  //   url: "https://www.minjusticia.gov.co/programas-co",
+  //   name: "Ministerio de Justicia",
   // },
   // {
-  //   id: "fundacion-sura",
-  //   url: "https://www.fundacionsura.com/iniciativas/beca-nicanor-restrepo-santamaria/",
-  //   name: "Fundación SURA",
-  //   category: "Educación y Becas",
+  //   id: "mindefensa",
+  //   url: "https://www.mindefensa.gov.co/transparencia/contratacion",
+  //   name: "Ministerio de Defensa",
+  // },
+  // {
+  //   id: "mininterior",
+  //   url: "https://www.mininterior.gov.co/banco-de-iniciativas-para-las-comunidades/",
+  //   name: "Ministerio del Interior - Banco de Iniciativas",
+  // },
+  // {
+  //   id: "cancilleria",
+  //   url: "https://www.cancilleria.gov.co/academia-diplomatica",
+  //   name: "Cancillería - Academia Diplomática",
+  // },
+  // {
+  //   id: "minhacienda",
+  //   url: "https://www.minhacienda.gov.co/entidad/oferta-de-empleo-2022",
+  //   name: "Ministerio de Hacienda",
+  // },
+  // {
+  //   id: "minenergia",
+  //   url: "https://fenoge.gov.co/convocatorias/",
+  //   name: "Ministerio de Minas y Energía - FENOGE",
+  // },
+  // {
+  //   id: "mincit",
+  //   url: "https://www.innpulsacolombia.com/convocatorias",
+  //   name: "MinCIT - iNNpulsa Colombia",
+  // },
+  // {
+  //   id: "mintic",
+  //   url: "https://mintic.gov.co/micrositios/convocatorias/",
+  //   name: "MinTIC - Convocatorias",
+  // },
+  // {
+  //   id: "mincultura",
+  //   url: "https://cultured.gov.co/",
+  //   name: "MinCultura - CultuRed",
+  // },
+  // {
+  //   id: "minagricultura",
+  //   url: "https://www.minagricultura.gov.co/tramites-servicios/Paginas/default.aspx",
+  //   name: "Ministerio de Agricultura",
+  // },
+  // {
+  //   id: "minambiente",
+  //   url: "https://www.minambiente.gov.co/convocatorias/",
+  //   name: "Ministerio de Ambiente",
+  // },
+  // {
+  //   id: "mintransporte",
+  //   url: "https://mintransporte.gov.co/galeria/1149/convocatorias/",
+  //   name: "Ministerio de Transporte",
+  // },
+  // {
+  //   id: "minvivienda",
+  //   url: "https://minvivienda.gov.co/convocatorias",
+  //   name: "Ministerio de Vivienda",
   // },
   // {
   //   id: "mineducacion",
-  //   url: "https://www.mineducacion.gov.co/portal/micrositios-institucionales/Cooperacion-Internacional/",
-  //   name: "MinEducación",
-  //   category: "Educación y Becas",
+  //   url: "https://www.mineducacion.gov.co/portal/seccion/Convocatorias/",
+  //   name: "Ministerio de Educación",
+  // },
+  // {
+  //   id: "mintrabajo",
+  //   url: "https://www.mintrabajo.gov.co/empleo-y-pensiones/empleo",
+  //   name: "Ministerio de Trabajo",
+  // },
+  // {
+  //   id: "minsalud",
+  //   url: "https://www.minsalud.gov.co/Paginas/Convocatorias-y-avisos.aspx",
+  //   name: "Ministerio de Salud",
+  // },
+  // // // pages 1–120
+  // // ...Array.from({ length: 120 }, (_, i) => ({
+  // //   id: "minciencias",
+  // //   url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
+  // //   name: "Minciencias",
+  // // })),
+  // {
+  //   id: "minciencias",
+  //   url: "https://minciencias.gov.co/convocatorias/todas",
+  //   name: "Minciencias",
+  // },
+  // {
+  //   id: "prosperidadsocial",
+  //   url: "https://prosperidadsocial.gov.co/convocatorias/",
+  //   name: "Prosperidad Social",
+  // },
+  // {
+  //   id: "sgr",
+  //   url: "https://www.sgr.gov.co/",
+  //   name: "Sistema General de Regalías",
   // },
 
+  // // Cooperación internacional y ONGs
   // {
-  //   id: "cidei",
-  //   url: "https://cidei.net/convocatorias-para-proyectos-idi/",
-  //   name: "CIDEI",
-  //   category: "Cooperación y Emprendimiento",
+  //   id: "apc",
+  //   url: "https://www.apccolombia.gov.co/index.php/modalidades-de-cooperacion/convocatorias",
+  //   name: "APC Colombia",
+  // },
+  // {
+  //   id: "usaid",
+  //   url: "https://www.grants.gov/",
+  //   name: "USAID / Grants.gov",
+  // },
+  // {
+  //   id: "ue_colombia",
+  //   url: "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home",
+  //   name: "Unión Europea - Funding & Tenders",
+  // },
+  // {
+  //   id: "onu_colombia",
+  //   url: "https://colombia.un.org/es/jobs",
+  //   name: "ONU Colombia - Empleos y convocatorias",
   // },
 
-  // // Empleo Público
+  // // Entidades privadas y cámaras de comercio
   // {
-  //   id: "cnsC",
-  //   url: "https://www.cnsc.gov.co",
-  //   name: "CNSC",
-  //   category: "Empleo Público",
+  //   id: "fundacion_bolivar_davivienda",
+  //   url: "https://www.fundacionbolivardavivienda.org/",
+  //   name: "Fundación Bolívar Davivienda",
   // },
   // {
-  //   id: "dnp",
-  //   url: "https://www.dnp.gov.co",
-  //   name: "DNP",
-  //   category: "Empleo Público",
+  //   id: "fundacion_corona",
+  //   url: "https://www.fundacioncorona.org/",
+  //   name: "Fundación Corona",
   // },
   // {
-  //   id: "sena-empleo",
-  //   url: "https://ape.sena.edu.co/spe-web/spe/cartelera",
-  //   name: "SENA Empleo",
-  //   category: "Empleo Público",
+  //   id: "ccb_bogota",
+  //   url: "https://www.ccb.org.co/camara-comercio-bogota/nosotros/convocatorias",
+  //   name: "Cámara de Comercio de Bogotá",
+  // },
+  // {
+  //   id: "minigualdad",
+  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+  //   name: "Ministerio de Igualdad y Equidad",
+  // },
+  // {
+  //   id: "minigualdad",
+  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+  //   name: "Ministerio de Igualdad y Equidad",
+  // },
+  // {
+  //   id: "minigualdad",
+  //   url: "https://www.minigualdadyequidad.gov.co/convocatorias",
+  //   name: "Ministerio de Igualdad y Equidad",
+  // },
+  // {
+  //   id: "cc_bucaramanga",
+  //   url: "https://www.camaradirecta.com/convocatorias-basicas",
+  //   name: "Cámara de Comercio de Bucaramanga",
+  // },
+  // {
+  //   id: "cc_medellin",
+  //   url: "https://ccmpc.org.co/category/trabaja-con-nosotros/",
+  //   name: "Cámara de Comercio de Medellín",
+  // },
+  // {
+  //   id: "cc_cali",
+  //   url: "https://www.ccc.org.co/programas-y-servicios-empresariales/",
+  //   name: "Cámara de Comercio de Cali",
+  // },
+  // {
+  //   id: "cc_barranquilla",
+  //   url: "https://www.camarabaq.org.co/pv/nosotros/proveedores",
+  //   name: "Cámara de Comercio de Barranquilla",
+  // },
+  // {
+  //   id: "cc_ibague",
+  //   url: "https://ccibague.org/convocatorias/",
+  //   name: "Cámara de Comercio de Ibagué",
+  // },
+  // {
+  //   id: "cc_cucuta",
+  //   url: "https://www.cccucuta.org.co/convocatorias",
+  //   name: "Cámara de Comercio de Cúcuta",
+  // },
+  // {
+  //   id: "cc_cartagena",
+  //   url: "https://www.cccartagena.org.co/",
+  //   name: "Cámara de Comercio de Cartagena",
+  // },
+  // {
+  //   id: "cc_santamarta",
+  //   url: "https://www.ccsm.org.co/es/contratacion-CPG760",
+  //   name: "Cámara de Comercio de Santa Marta",
+  // },
+  // {
+  //   id: "cc_villavicencio",
+  //   url: "https://www.ccv.org.co/es/contratacion-PG146",
+  //   name: "Cámara de Comercio de Villavicencio",
+  // },
+  // {
+  //   id: "cc_pereira",
+  //   url: "https://www.camarapereira.org.co/es/vacantes-empresa-PG766",
+  //   name: "Cámara de Comercio de Pereira",
+  // },
+  // {
+  //   id: "bancoldex",
+  //   url: "https://www.bancoldex.com/es/convocatorias",
+  //   name: "Bancóldex - Convocatorias",
+  // },
+  // {
+  //   id: "innpulsa",
+  //   url: "https://www.innpulsacolombia.com/convocatorias",
+  //   name: "iNNpulsa Colombia",
+  // },
+  // {
+  //   id: "confecamaras",
+  //   url: "https://confecamaras.org.co/conozca-la-red-de-camaras-de-comercio/",
+  //   name: "Confecámaras",
   // },
 
-  // // Vivienda y Social
-  // {
-  //   id: "minvivienda",
-  //   url: "https://www.minvivienda.gov.co/sala-de-prensa",
-  //   name: "MinVivienda",
-  //   category: "Vivienda y Social",
-  // },
+  //   // Cooperación y Emprendimiento
+  //   // // {
+  //   // //   id: "apc",
+  //   // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
+  //   // //   name: "APC Colombia",
+  //   // //   category: "Cooperación y Emprendimiento",
+  //   // // },
+  //   // // pages 1–40
+  //   // ...Array.from({ length: 40 }, (_, i) => ({
+  //   //   id: "apc",
+  //   //   url: `https://portalservicios-apccolombia.gov.co/externo/Convocatoria?page=${i + 1}`,
+  //   //   name: "APC Colombia",
+  //   //   category: "Cooperación y Emprendimiento",
+  //   // })),
+  //   // // // // // {
+  //   // // // // //   id: "apc",
+  //   // // // // //   url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
+  //   // // // // //   name: "APC Colombia",
+  //   // // // // //   category: "Cooperación y Emprendimiento",
+  //   // // // // // },
 ];
 
 // --- ESTADO GLOBAL ---

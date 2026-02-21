@@ -762,7 +762,7 @@ function renderResults(data) {
                     </div>
                     <div class="pt-1 space-y-2">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-black uppercase text-stone-300">Monto</span>
+                            <span class="text-[10px] font-black uppercase text-stone-300">Rec. Disponibles</span>
                             <span class="text-[11px] font-bold text-earth-accent text-right">${item.monto || "No espec."}</span>
                         </div>
                         <div class="flex items-center gap-2">

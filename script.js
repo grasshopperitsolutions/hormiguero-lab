@@ -1,3 +1,34 @@
+// Predefined categories for convocatorias filter
+const CATEGORIES = [
+  "Call for proposals",
+  "Grants / Subvenciones",
+  "Donaciones",
+  "Technical assistance",
+  "Request for Application (RFA)",
+  "Portafolio de estímulos",
+  "Subvenciones",
+  "Cofinanciación",
+  "Capital semilla",
+  "Banco de proyectos",
+  "Fomento",
+  "Investigación",
+  "Sistema General de Regalías",
+  "Licitación pública",
+  "Mínima cuantía",
+  "Selección abreviada",
+  "Concurso de méritos",
+  "Términos de referencia (TDR)",
+  "Pliego de condiciones",
+  "Gestión del conocimiento",
+  "Ambiente",
+  "Energía",
+  "Paz",
+  "Sociedad",
+  "Salud",
+  "Minería",
+  "Suelos",
+];
+
 // keep the main one as the last for script to show the main website
 const SOURCES = [
   // // pages 1–120
@@ -45,12 +76,12 @@ const SOURCES = [
   //   name: "APC Colombia",
   //   category: "Cooperación y Emprendimiento",
   // })),
-  {
-    id: "apc",
-    url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
-    name: "APC Colombia",
-    category: "Cooperación y Emprendimiento",
-  },
+  // // // // // {
+  // // // // //   id: "apc",
+  // // // // //   url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
+  // // // // //   name: "APC Colombia",
+  // // // // //   category: "Cooperación y Emprendimiento",
+  // // // // // },
 
   // {
   //   id: "atenea",
@@ -447,26 +478,21 @@ function initializeFilters() {
     '<option value="todas">Todas las categorías</option>';
   fuenteFilter.innerHTML = '<option value="todas">Todas las fuentes</option>';
 
-  // Obtener categorías y fuentes únicas de los datos actuales
-  const dataToUse =
-    currentConvocatorias.length > 0 ? currentConvocatorias : mockConvocatorias;
-
-  const uniqueCategories = [
-    ...new Set(
-      dataToUse.map((c) => c.categoria || c.category || "Sin categoría"),
-    ),
-  ].sort();
-  const uniqueFuentes = [
-    ...new Set(dataToUse.map((c) => c.fuente || c.entidad)),
-  ].sort();
-
-  // Agregar categorías al filtro
-  uniqueCategories.forEach((category) => {
+  // Usar la lista predefinida de categorías
+  CATEGORIES.forEach((category) => {
     const option = document.createElement("option");
     option.value = category;
     option.textContent = category;
     categoryFilter.appendChild(option);
   });
+
+  // Obtener fuentes únicas de los datos actuales
+  const dataToUse =
+    currentConvocatorias.length > 0 ? currentConvocatorias : mockConvocatorias;
+
+  const uniqueFuentes = [
+    ...new Set(dataToUse.map((c) => c.fuente || c.entidad)),
+  ].sort();
 
   // Agregar fuentes al filtro
   uniqueFuentes.forEach((fuente) => {

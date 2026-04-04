@@ -264,11 +264,11 @@ const SOURCES = [
   //   url: "https://www.bancoldex.com/es/convocatorias",
   //   name: "Bancóldex - Convocatorias",
   // },
-  // {
-  //   id: "innpulsa",
-  //   url: "https://www.innpulsacolombia.com/convocatorias",
-  //   name: "iNNpulsa Colombia",
-  // },
+  {
+    id: "innpulsa",
+    url: "https://convocatorias.innpulsacolombia.com/",
+    name: "iNNpulsa Colombia",
+  },
   // {
   //   id: "confecamaras",
   //   url: "https://confecamaras.org.co/conozca-la-red-de-camaras-de-comercio/",
@@ -708,7 +708,7 @@ async function startHarvest() {
   console.log(`📊 Processing ${SOURCES.length} sources`);
 
   try {
-    const CRAWL_BATCH_SIZE = 4;
+    const CRAWL_BATCH_SIZE = 2;
     const allResults = [];
 
     // STEP 1: Crawl URLs in batches

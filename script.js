@@ -635,14 +635,22 @@ function initializeFilters() {
   });
 }
 
-window.onload = async () => {
-  initializeSources();
+// Helper function to determine the API limit based on user tier
+function getApiLimitForUser() {
+  if (!currentUser) return 25; // Not logged in = free tier behavior
+  if (currentUser.tier === "free") return 25;
+  return null; // No limit for paid tiers
+}
 
-  // Try to load from Firebase first
-  const storedData = await loadStoredConvocatorias();
+// Function to load and display convocatorias with tier-based limit
+async function loadAndDisplayConvocatorias() {
+  const limit = getApiLimitForUser();
+  const storedData = await loadStoredConvocatorias(limit);
 
   if (storedData.length > 0) {
-    console.log(`✅ Loaded ${storedData.length} convocatorias from Firebase`);
+    console.log(
+      `✅ Loaded ${storedData.length} convocatorias from Firebase (limit: ${limit === null ? "none" : limit})`,
+    );
     currentConvocatorias = storedData;
   } else {
     console.log("📦 No stored data, showing mock convocatorias");
@@ -655,6 +663,13 @@ window.onload = async () => {
   // Then render results
   renderResults(currentConvocatorias);
   applyFilters();
+}
+
+window.onload = async () => {
+  initializeSources();
+
+  // Try to load from Firebase first (default limit for non-authenticated users)
+  await loadAndDisplayConvocatorias();
 };
 
 function showSection(id) {
@@ -1155,7 +1170,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // Update UI for logged in user
-function updateUIForLoggedInUser(user) {
+async function updateUIForLoggedInUser(user) {
   const btn = document.getElementById("nav-auth-btn");
   if (btn) {
     const firstName = user.name
@@ -1165,8 +1180,28 @@ function updateUIForLoggedInUser(user) {
     btn.onclick = handleLogout;
     btn.classList.add("bg-earth-clay");
   }
+
+  // Reload data with tier-based limit if user is not free tier
+  if (user.tier !== "free") {
+    console.log(
+      `🔄 Reloading data for ${user.tier} tier user (no limit)...`,
+    );
+    const limit = getApiLimitForUser();
+    const storedData = await loadStoredConvocatorias(limit);
+    if (storedData.length > 0) {
+      console.log(
+        `✅ Reloaded ${storedData.length} convocatorias (limit: ${limit === null ? "none" : limit})`,
+      );
+      currentConvocatorias = storedData;
+      initializeFilters();
+    }
+  }
+
   renderResults(currentConvocatorias);
 
+  const firstName = user.name
+    ? user.name.split(" ")[0]
+    : user.email.split("@")[0];
   showToast(
     `¡Bienvenido, ${firstName}!`,
     "", // `Tier: ${user.tier.toUpperCase()} | Solicitudes: ${user.requestCount}/${user.maxRequests}`,
@@ -1413,12 +1448,13 @@ function switchAuthView(view) {
 }
 
 // Add this new function to fetch from Firebase
-async function loadStoredConvocatorias() {
-  const limit = 25;
+async function loadStoredConvocatorias(limit) {
   const estado = "";
+  // Only include limit in query if it's a number, otherwise omit for no limit
+  const limitParam = typeof limit === "number" ? `&limit=${limit}` : "";
   try {
     const response = await fetch(
-      `${API_BASE}/api/store-data?limit=${limit}&estado=${estado}`,
+      `${API_BASE}/api/store-data?estado=${estado}${limitParam}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },

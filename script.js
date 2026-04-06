@@ -132,19 +132,6 @@ const SOURCES = [
   //   url: "https://www.minsalud.gov.co/Paginas/Convocatorias-y-avisos.aspx",
   //   name: "Ministerio de Salud",
   // },
-  // pages 1–120
-  // ...Array.from({ length: 120 }, (_, i) => ({
-  ...Array.from({ length: 9 }, (_, i) => ({
-    id: "minciencias",
-    url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
-    name: "Minciencias",
-  })),
-  // // Notes: working fine
-  {
-    id: "minciencias",
-    url: "https://minciencias.gov.co/convocatorias/todas",
-    name: "Minciencias",
-  },
   // {
   //   id: "prosperidadsocial",
   //   url: "https://prosperidadsocial.gov.co/convocatorias/",
@@ -194,21 +181,6 @@ const SOURCES = [
   //   url: "https://www.ccb.org.co/camara-comercio-bogota/nosotros/convocatorias",
   //   name: "Cámara de Comercio de Bogotá",
   // },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
-    name: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
-    name: "Ministerio de Igualdad y Equidad",
-  },
-  {
-    id: "minigualdad",
-    url: "https://www.minigualdadyequidad.gov.co/convocatorias",
-    name: "Ministerio de Igualdad y Equidad",
-  },
   // {
   //   id: "cc_bucaramanga",
   //   url: "https://www.camaradirecta.com/convocatorias-basicas",
@@ -264,37 +236,58 @@ const SOURCES = [
   //   url: "https://www.bancoldex.com/es/convocatorias",
   //   name: "Bancóldex - Convocatorias",
   // },
-  {
-    id: "innpulsa",
-    url: "https://convocatorias.innpulsacolombia.com/",
-    name: "iNNpulsa Colombia",
-  },
   // {
   //   id: "confecamaras",
   //   url: "https://confecamaras.org.co/conozca-la-red-de-camaras-de-comercio/",
   //   name: "Confecámaras",
   // },
 
-  //   // Cooperación y Emprendimiento
-  //   // // {
-  //   // //   id: "apc",
-  //   // //   url: "https://www.apccolombia.gov.co/modalidades-de-cooperacion/convocatorias",
-  //   // //   name: "APC Colombia",
-  //   // //   category: "Cooperación y Emprendimiento",
-  //   // // },
-  //   // // pages 1–40
-  //   // ...Array.from({ length: 40 }, (_, i) => ({
-  //   //   id: "apc",
-  //   //   url: `https://portalservicios-apccolombia.gov.co/externo/Convocatoria?page=${i + 1}`,
-  //   //   name: "APC Colombia",
-  //   //   category: "Cooperación y Emprendimiento",
-  //   // })),
-  //   // // // // // {
-  //   // // // // //   id: "apc",
-  //   // // // // //   url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
-  //   // // // // //   name: "APC Colombia",
-  //   // // // // //   category: "Cooperación y Emprendimiento",
-  //   // // // // // },
+  // Notes: working fine
+  // pages 1–120
+  // ...Array.from({ length: 120 }, (_, i) => ({
+  ...Array.from({ length: 9 }, (_, i) => ({
+    id: "minciencias",
+    url: `https://minciencias.gov.co/convocatorias/todas?page=${i + 1}`,
+    name: "Minciencias",
+  })),
+  {
+    id: "minciencias",
+    url: "https://minciencias.gov.co/convocatorias/todas",
+    name: "Minciencias",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=2",
+    name: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias?p_p_id=com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_ufow_cur=3",
+    name: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    id: "minigualdad",
+    url: "https://www.minigualdadyequidad.gov.co/convocatorias",
+    name: "Ministerio de Igualdad y Equidad",
+  },
+  {
+    id: "innpulsa",
+    url: "https://convocatorias.innpulsacolombia.com/",
+    name: "iNNpulsa Colombia",
+  },
+  // pages 1–40
+  ...Array.from({ length: 9 }, (_, i) => ({
+    id: "apc",
+    url: `https://portalservicios-apccolombia.gov.co/externo/Convocatoria?page=${i + 1}`,
+    name: "APC Colombia",
+    category: "Cooperación y Emprendimiento",
+  })),
+  {
+    id: "apc",
+    url: "https://portalservicios-apccolombia.gov.co/Externo/Convocatoria",
+    name: "APC Colombia",
+    category: "Cooperación y Emprendimiento",
+  },
 ];
 
 // --- ESTADO GLOBAL ---
